@@ -20,7 +20,10 @@ import {
   ListOrdered,
   WifiOff,
   AlertTriangle,
-  KeyRound
+  KeyRound,
+  Save,
+  ExternalLink,
+  Check
 } from "lucide-react";
 
 // --- Types ---
@@ -73,7 +76,11 @@ const TOPICS = {
 // --- Helper Functions ---
 
 const getApiKey = (): string | undefined => {
-  // Safety check for process.env usage in browsers
+  // 1. Check LocalStorage (Manual Entry)
+  const storedKey = localStorage.getItem('gemini_api_key');
+  if (storedKey) return storedKey;
+
+  // 2. Check Environment Variable (Automatic/IDX)
   try {
     return process.env.API_KEY;
   } catch (e) {
@@ -282,6 +289,7 @@ const App = () => {
   const [aiTip, setAiTip] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [missingKey, setMissingKey] = useState(false);
+  const [manualKey, setManualKey] = useState('');
   const [isSkipping, setIsSkipping] = useState(false);
 
   // Load Leaderboard on Mount
@@ -293,6 +301,14 @@ const App = () => {
       } catch (e) {
         console.error("Erro ao carregar leaderboard", e);
       }
+    }
+    
+    // Check if key is already present on mount to update UI state
+    const existingKey = getApiKey();
+    if (existingKey) {
+      setMissingKey(false);
+    } else {
+      setMissingKey(true);
     }
   }, []);
 
@@ -339,7 +355,6 @@ const App = () => {
         await window.aistudio.openSelectKey();
         setErrorMsg(null);
         setMissingKey(false);
-        // We assume success and try to start the game immediately or let the user click play again
       } catch (e) {
         console.error("Failed to select key", e);
         setErrorMsg("Falha ao selecionar chave. Tente novamente.");
@@ -347,6 +362,17 @@ const App = () => {
     } else {
       setErrorMsg("Ambiente não suporta seleção automática. Configure a API Key manualmente.");
     }
+  };
+
+  const handleSaveManualKey = () => {
+    if (!manualKey.trim().startsWith('AIza')) {
+      setErrorMsg("A chave parece inválida (geralmente começa com 'AIza').");
+      return;
+    }
+    localStorage.setItem('gemini_api_key', manualKey.trim());
+    setMissingKey(false);
+    setErrorMsg(null);
+    // Don't auto-start, let user click play to ensure they are ready
   };
 
   const startGame = async () => {
@@ -358,12 +384,8 @@ const App = () => {
     // Initial API Key Check
     const apiKey = getApiKey();
     if (!apiKey) {
-      if (window.aistudio) {
-        setMissingKey(true);
-        setErrorMsg("É necessário conectar sua conta Google para jogar.");
-      } else {
-        setErrorMsg("Erro de Configuração: API_KEY não encontrada.");
-      }
+      setMissingKey(true);
+      setErrorMsg("É necessário configurar uma API Key para jogar.");
       return;
     }
 
@@ -392,8 +414,12 @@ const App = () => {
       
       setErrorMsg(msg);
       
-      if (err.message === "API_KEY_MISSING" && window.aistudio) {
+      if (err.message === "API_KEY_MISSING") {
         setMissingKey(true);
+        // If the stored key is invalid, maybe clear it so user can enter a new one
+        if (localStorage.getItem('gemini_api_key')) {
+           localStorage.removeItem('gemini_api_key');
+        }
       }
       
       setGameState('START');
@@ -519,15 +545,78 @@ const App = () => {
               </div>
 
               {missingKey ? (
-                 <Button onClick={handleConnectApiKey} className="w-full text-lg py-4 shadow-indigo-500/20" variant="secondary">
-                   <KeyRound className="fill-current" />
-                   CONECTAR CONTA GOOGLE
-                 </Button>
+                 <div className="space-y-3 animate-in fade-in slide-in-from-top-4 bg-slate-800/50 p-4 rounded-2xl border border-white/10">
+                   <div className="flex items-center gap-2 text-yellow-400 mb-1">
+                      <AlertTriangle size={16} />
+                      <span className="text-xs font-bold uppercase">Configuração Necessária</span>
+                   </div>
+                   
+                   <p className="text-xs text-slate-400 text-left mb-2">
+                     Para jogar, você precisa inserir sua chave da API Gemini (Google AI Studio). Ela será salva apenas no seu navegador.
+                   </p>
+
+                   <div className="relative">
+                      <input 
+                        type="password"
+                        value={manualKey}
+                        onChange={(e) => setManualKey(e.target.value)}
+                        placeholder="Cole sua chave aqui (começa com AIza...)"
+                        className="w-full bg-slate-950/80 border border-white/10 rounded-xl py-3 px-4 pr-12 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                      />
+                      <button 
+                        onClick={handleSaveManualKey}
+                        disabled={!manualKey}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-600 rounded-lg hover:bg-emerald-500 disabled:opacity-0 disabled:pointer-events-none transition-all text-white shadow-lg"
+                        title="Salvar Chave"
+                      >
+                        <Save size={16} />
+                      </button>
+                   </div>
+
+                   {window.aistudio && (
+                     <>
+                        <div className="relative py-1">
+                          <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-white/5" />
+                          </div>
+                          <div className="relative flex justify-center text-[10px] uppercase">
+                            <span className="bg-[#162032] px-2 text-slate-600">Ou</span>
+                          </div>
+                        </div>
+                        <Button onClick={handleConnectApiKey} className="w-full text-xs py-2 h-auto" variant="secondary">
+                          <KeyRound className="fill-current" size={14} />
+                          Usar conta Google (IDX)
+                        </Button>
+                     </>
+                   )}
+                   
+                   <a 
+                     href="https://aistudio.google.com/app/apikey" 
+                     target="_blank" 
+                     rel="noreferrer"
+                     className="inline-flex items-center gap-1 text-[10px] text-indigo-400 hover:text-indigo-300 hover:underline mt-1"
+                   >
+                     Gerar chave gratuita no Google AI Studio <ExternalLink size={10} />
+                   </a>
+                 </div>
               ) : (
-                <Button onClick={startGame} className="w-full text-lg py-4 shadow-violet-500/20" disabled={!playerName.trim()}>
-                  <Play className="fill-current" />
-                  JOGAR AGORA
-                </Button>
+                <div className="space-y-3">
+                  <Button onClick={startGame} className="w-full text-lg py-4 shadow-violet-500/20" disabled={!playerName.trim()}>
+                    <Play className="fill-current" />
+                    JOGAR AGORA
+                  </Button>
+                  
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem('gemini_api_key');
+                      setMissingKey(true);
+                      setManualKey('');
+                    }}
+                    className="text-xs text-slate-500 hover:text-red-400 underline decoration-dotted"
+                  >
+                    Trocar Chave de API
+                  </button>
+                </div>
               )}
             </div>
 
