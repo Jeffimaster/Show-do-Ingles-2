@@ -17,7 +17,11 @@ import {
   Divide,
   Coins,
   User,
-  ListOrdered
+  ListOrdered,
+  Wifi,
+  WifiOff,
+  CloudLightning,
+  Database
 } from "lucide-react";
 
 // --- Types ---
@@ -27,6 +31,7 @@ interface Question {
   options: string[];
   correctIndex: number;
   explanation: string;
+  source?: 'AI' | 'OFFLINE';
 }
 
 interface ScoreEntry {
@@ -56,69 +61,90 @@ const TOPICS = {
   expert: ["Expressões Idiomáticas (Idioms)", "Gírias Nativas", "Inversão Gramatical", "Vocabulário Acadêmico", "Nuances de Significado", "Phrasal Verbs Avançados", "Inglês Literário", "Mixed Conditionals"]
 };
 
-// Fallback questions to ensure the game works offline or when API fails
-const FALLBACK_QUESTIONS: Question[] = [
-  {
-    text: "Qual é a tradução correta para 'Book'?",
-    options: ["Mesa", "Livro", "Cadeira", "Caneta"],
-    correctIndex: 1,
-    explanation: "'Book' significa Livro. Mesa é 'Table', Cadeira é 'Chair' e Caneta é 'Pen'."
-  },
-  {
-    text: "Como se diz 'Maçã' em inglês?",
-    options: ["Banana", "Orange", "Apple", "Grape"],
-    correctIndex: 2,
-    explanation: "Maçã em inglês é 'Apple'."
-  },
-  {
-    text: "Qual destas palavras é uma cor?",
-    options: ["Dog", "Blue", "Car", "Run"],
-    correctIndex: 1,
-    explanation: "'Blue' (Azul) é uma cor. As outras são cachorro, carro e correr."
-  },
-  {
-    text: "Complete: 'The sky ___ blue.'",
-    options: ["am", "is", "are", "be"],
-    correctIndex: 1,
-    explanation: "Usamos 'is' para singular (The sky). 'The sky is blue'."
-  },
-  {
-    text: "O que significa 'Teacher'?",
-    options: ["Aluno", "Médico", "Professor", "Engenheiro"],
-    correctIndex: 2,
-    explanation: "'Teacher' é Professor(a)."
-  },
-  {
-    text: "Qual é o passado de 'Go' (Ir)?",
-    options: ["Goed", "Gone", "Went", "Going"],
-    correctIndex: 2,
-    explanation: "'Go' é um verbo irregular. Seu passado simples é 'Went'."
-  },
-  {
-    text: "Como se diz 'Obrigado' em inglês?",
-    options: ["Please", "Sorry", "Hello", "Thank you"],
-    correctIndex: 3,
-    explanation: "Obrigado é 'Thank you' ou 'Thanks'."
-  },
-  {
-    text: "Qual palavra NÃO é um animal?",
-    options: ["Cat", "Dog", "Bird", "Door"],
-    correctIndex: 3,
-    explanation: "'Door' significa Porta. As outras opções são Gato, Cachorro e Pássaro."
-  },
-  {
-    text: "Se hoje é Sunday (Domingo), amanhã será...",
-    options: ["Monday", "Tuesday", "Friday", "Saturday"],
-    correctIndex: 0,
-    explanation: "Depois de Sunday (Domingo) vem Monday (Segunda-feira)."
-  },
-  {
-    text: "O que significa o 'phrasal verb' GIVE UP?",
-    options: ["Continuar", "Desistir", "Subir", "Doar"],
-    correctIndex: 1,
-    explanation: "'Give up' significa desistir de algo."
-  }
-];
+// Database of offline questions categorized by difficulty
+// Used when API fails or connection is lost
+const OFFLINE_QUESTIONS = {
+  easy: [
+    {
+      text: "Qual é a tradução correta para 'Book'?",
+      options: ["Mesa", "Livro", "Cadeira", "Caneta"],
+      correctIndex: 1,
+      explanation: "'Book' significa Livro. Mesa é 'Table', Cadeira é 'Chair' e Caneta é 'Pen'."
+    },
+    {
+      text: "Complete: 'The sky ___ blue.'",
+      options: ["am", "is", "are", "be"],
+      correctIndex: 1,
+      explanation: "Usamos 'is' para singular (The sky). 'The sky is blue'."
+    },
+    {
+      text: "Qual destas palavras é um animal?",
+      options: ["Car", "Table", "Dog", "Blue"],
+      correctIndex: 2,
+      explanation: "'Dog' (Cachorro) é o único animal da lista."
+    }
+  ],
+  medium: [
+    {
+      text: "Qual frase está no PASSADO simples?",
+      options: ["I go to school.", "I went to school.", "I am going to school.", "I will go to school."],
+      correctIndex: 1,
+      explanation: "'Went' é o passado irregular de 'Go'. As outras estão no presente ou futuro."
+    },
+    {
+      text: "O que significa 'Breakfast'?",
+      options: ["Almoço", "Jantar", "Café da manhã", "Lanche"],
+      correctIndex: 2,
+      explanation: "'Breakfast' é Café da manhã. Almoço é 'Lunch' e Jantar é 'Dinner'."
+    },
+    {
+      text: "Qual a preposição correta: 'The book is ___ the table.'",
+      options: ["in", "on", "at", "to"],
+      correctIndex: 1,
+      explanation: "Usamos 'on' quando algo está sobre uma superfície."
+    }
+  ],
+  hard: [
+    {
+      text: "O que significa o phrasal verb 'RUN OUT OF'?",
+      options: ["Correr fora", "Ficar sem algo", "Fugir", "Encontrar por acaso"],
+      correctIndex: 1,
+      explanation: "'Run out of' significa esgotar o estoque de algo ou ficar sem (ex: We ran out of milk)."
+    },
+    {
+      text: "Qual frase usa corretamente o Present Perfect?",
+      options: ["I have seen that movie yesterday.", "I saw that movie yesterday.", "I have saw that movie.", "I have seen that movie already."],
+      correctIndex: 3,
+      explanation: "Não usamos Present Perfect com tempo definido (yesterday). 'Have seen' + 'already' está correto."
+    },
+    {
+      text: "Selecione o sinônimo de 'Wealthy'.",
+      options: ["Poor", "Rich", "Health", "Weak"],
+      correctIndex: 1,
+      explanation: "'Wealthy' significa rico ou afortunado, sinônimo de 'Rich'."
+    }
+  ],
+  expert: [
+    {
+      text: "O que significa a expressão idiomática 'Bite the bullet'?",
+      options: ["Comer rápido", "Levar um tiro", "Enfrentar uma situação difícil com coragem", "Morder a língua"],
+      correctIndex: 2,
+      explanation: "'Bite the bullet' significa encarar uma situação dolorosa ou desagradável de frente, que era inevitável."
+    },
+    {
+      text: "Qual frase contém uma INVERSÃO gramatical correta?",
+      options: ["Never I have see such a thing.", "Never have I seen such a thing.", "I have never seen such a thing.", "Never saw I such a thing."],
+      correctIndex: 1,
+      explanation: "Em inglês formal, ao começar com adverbiais negativos como 'Never', invertemos o auxiliar e o sujeito: 'Never have I seen...'."
+    },
+    {
+      text: "O que significa 'Serendipity'?",
+      options: ["Tranquilidade absoluta", "Uma descoberta feliz ao acaso", "Piedade profunda", "Indiferença total"],
+      correctIndex: 1,
+      explanation: "'Serendipity' é a ocorrência de encontrar coisas valiosas ou agradáveis por acaso."
+    }
+  ]
+};
 
 // --- API Helper ---
 
@@ -128,23 +154,27 @@ const getDifficultyParams = (index: number) => {
   
   if (index >= 3) { level = "Intermediário (Nível B1/B2)"; tier = 'medium'; }
   if (index >= 6) { level = "Avançado (Nível C1)"; tier = 'hard'; }
-  if (index >= 9) { level = "Fluente/Nativo (Nível C2)"; tier = 'expert'; }
+  if (index >= 9) { level = "Fluente/Nativo (Nível C2 - Vocabulary/Nuance)"; tier = 'expert'; }
 
   const topics = TOPICS[tier];
   const randomTopic = topics[Math.floor(Math.random() * topics.length)];
   
-  return { level, topic: randomTopic };
+  return { level, topic: randomTopic, tier };
 };
 
 const generateQuestion = async (index: number): Promise<Question> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const { level, topic } = getDifficultyParams(index);
+  const { level, topic, tier } = getDifficultyParams(index);
   
-  const prompt = `Crie uma pergunta de múltipla escolha única e criativa para um jogo estilo 'Show do Milhão' de Inglês.
-  Nível de Dificuldade: ${level}.
-  Tema Sugerido: ${topic}.
-  A pergunta deve ser desafiadora para este nível específico e educativa.
-  Retorne APENAS um objeto JSON.`;
+  const prompt = `ATENÇÃO: Você é o gerador de perguntas para o 'Show do Milhão'.
+  Nível Exigido: ${level}. (Obrigatório respeitar a dificuldade).
+  Tema: ${topic}.
+  
+  Instruções de Dificuldade:
+  - Se Nível for Avançado/Fluente, use vocabulário complexo, phrasal verbs raros ou regras gramaticais obscuras. NÃO faça perguntas fáceis para estes níveis.
+  - Se Nível for Básico, mantenha simples e direto.
+  
+  Retorne um objeto JSON válido com: text, options (4 strings), correctIndex (0-3), explanation.`;
 
   // Try 2 times before giving up and using fallback
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -157,14 +187,10 @@ const generateQuestion = async (index: number): Promise<Question> => {
           responseSchema: {
             type: Type.OBJECT,
             properties: {
-              text: { type: Type.STRING, description: "A pergunta em português ou inglês (contextualizada)" },
-              options: { 
-                type: Type.ARRAY, 
-                items: { type: Type.STRING },
-                description: "Exatamente 4 opções de resposta"
-              },
-              correctIndex: { type: Type.INTEGER, description: "Índice da resposta correta (0-3)" },
-              explanation: { type: Type.STRING, description: "Explicação breve e educativa sobre o porquê da resposta correta" }
+              text: { type: Type.STRING, description: "A pergunta." },
+              options: { type: Type.ARRAY, items: { type: Type.STRING } },
+              correctIndex: { type: Type.INTEGER },
+              explanation: { type: Type.STRING }
             },
             required: ["text", "options", "correctIndex", "explanation"]
           }
@@ -172,26 +198,32 @@ const generateQuestion = async (index: number): Promise<Question> => {
       });
 
       if (response.text) {
-        // Robust JSON extraction: Find the first { and last }
+        // Robust JSON extraction
         const text = response.text;
         const start = text.indexOf('{');
         const end = text.lastIndexOf('}');
         
         if (start !== -1 && end !== -1) {
           const jsonStr = text.substring(start, end + 1);
-          return JSON.parse(jsonStr) as Question;
+          const data = JSON.parse(jsonStr);
+          return { ...data, source: 'AI' };
         }
       }
     } catch (e) {
       console.warn(`Attempt ${attempt + 1} failed for question generation:`, e);
-      // Wait a short moment before retry (simple backoff)
-      await new Promise(res => setTimeout(res, 500));
+      // Wait a short moment before retry
+      await new Promise(res => setTimeout(res, 800));
     }
   }
 
-  console.warn("All API attempts failed. Using fallback question.");
-  // Return a fallback question based on index to ensure variety if API fails completely
-  return FALLBACK_QUESTIONS[index % FALLBACK_QUESTIONS.length];
+  console.warn("All API attempts failed. Using offline backup.");
+  
+  // Select a random question from the appropriate tier in offline database
+  const pool = OFFLINE_QUESTIONS[tier];
+  // Use a pseudo-random pick based on index and time to vary it slightly
+  const fallbackQ = pool[(index + Math.floor(Math.random() * 10)) % pool.length];
+  
+  return { ...fallbackQ, source: 'OFFLINE' };
 };
 
 const getAiHelp = async (question: Question): Promise<string> => {
@@ -733,6 +765,22 @@ const App = () => {
            
            <div className="absolute top-0 right-0 p-4 opacity-10">
              <HelpCircle size={100} />
+           </div>
+
+           {/* Source Badge */}
+           <div className="flex items-center gap-2 mb-4">
+             {currentQ.source === 'AI' ? (
+               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold uppercase tracking-wider">
+                 <CloudLightning size={12} /> Gerada por IA
+               </div>
+             ) : (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-600/30 border border-slate-500/30 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                 <Database size={12} /> Modo Offline
+               </div>
+             )}
+             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+               {currentQIndex < 3 ? 'Nível Básico' : currentQIndex < 6 ? 'Nível Médio' : currentQIndex < 9 ? 'Nível Difícil' : 'Nível Especialista'}
+             </div>
            </div>
            
            <h2 className="text-xl sm:text-3xl font-bold leading-relaxed text-slate-100 relative z-10 drop-shadow-sm">
