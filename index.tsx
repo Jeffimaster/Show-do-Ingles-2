@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { 
   Loader2, 
   Trophy, 
@@ -9,41 +8,27 @@ import {
   XCircle, 
   ArrowRight, 
   Sparkles, 
-  Zap, 
   HelpCircle,
   Play,
   RefreshCw,
   FastForward,
   Divide,
-  Coins,
   User,
   ListOrdered,
-  WifiOff,
   AlertTriangle,
-  KeyRound,
-  Save,
-  ExternalLink,
-  Check
+  Lightbulb
 } from "lucide-react";
 
 // --- Types ---
 
-declare global {
-  interface AIStudio {
-    openSelectKey: () => Promise<void>;
-    hasSelectedApiKey: () => Promise<boolean>;
-  }
-
-  interface Window {
-    aistudio?: AIStudio;
-  }
-}
-
 interface Question {
+  id: string;
   text: string;
   options: string[];
   correctIndex: number;
   explanation: string;
+  hint: string;
+  level: 'easy' | 'medium' | 'hard' | 'expert';
 }
 
 interface ScoreEntry {
@@ -57,7 +42,7 @@ type GameState = 'START' | 'LOADING' | 'PLAYING' | 'FEEDBACK' | 'GAME_OVER' | 'V
 interface Lifelines {
   fiftyFifty: boolean;
   skips: number;
-  aiHelp: boolean;
+  hint: boolean;
 }
 
 // --- Configuration ---
@@ -66,140 +51,258 @@ const PRIZE_LADDER = [
   1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000
 ];
 
-const TOPICS = {
-  easy: ["Cores e Números", "Cumprimentos e Verbo To Be", "Animais e Comida", "Família e Roupas", "Dias da Semana e Meses", "Objetos da Casa", "Adjetivos Simples", "Pronomes Pessoais"],
-  medium: ["Presente Simples vs Contínuo", "Passado Simples", "Preposições de Lugar/Tempo", "Comparativos e Superlativos", "Pronomes Possessivos", "Falsos Cognatos", "Vocabulário de Viagem", "Futuro com Will/Going to"],
-  hard: ["Present Perfect", "Condicionais (If clauses)", "Phrasal Verbs Comuns", "Voz Passiva", "Discurso Indireto (Reported Speech)", "Vocabulário de Trabalho", "Conectivos (Linking Words)"],
-  expert: ["Expressões Idiomáticas (Idioms)", "Gírias Nativas", "Inversão Gramatical", "Vocabulário Acadêmico", "Nuances de Significado", "Phrasal Verbs Avançados", "Inglês Literário", "Mixed Conditionals"]
-};
+// --- Static Question Bank ---
+
+const QUESTION_BANK: Question[] = [
+  // EASY (Nível 1-3)
+  {
+    id: 'e1', level: 'easy',
+    text: "Como se diz 'Vermelho' em inglês?",
+    options: ["Blue", "Red", "Green", "Yellow"],
+    correctIndex: 1,
+    explanation: "'Red' é a tradução direta de vermelho. Blue é azul, Green é verde e Yellow é amarelo.",
+    hint: "É a cor do sangue e do morango."
+  },
+  {
+    id: 'e2', level: 'easy',
+    text: "Qual é a tradução de 'Dog'?",
+    options: ["Gato", "Pássaro", "Cachorro", "Peixe"],
+    correctIndex: 2,
+    explanation: "'Dog' significa cachorro. Gato é 'Cat', Pássaro é 'Bird' e Peixe é 'Fish'.",
+    hint: "É conhecido como o melhor amigo do homem."
+  },
+  {
+    id: 'e3', level: 'easy',
+    text: "Complete a frase: 'I ___ happy today.'",
+    options: ["is", "are", "am", "be"],
+    correctIndex: 2,
+    explanation: "O verbo 'to be' conjugado para a primeira pessoa (I) é 'am'.",
+    hint: "Conjugação do verbo to be para 'Eu' (I)."
+  },
+  {
+    id: 'e4', level: 'easy',
+    text: "Como se diz 'Obrigado' em inglês?",
+    options: ["Please", "Sorry", "Excuse me", "Thank you"],
+    correctIndex: 3,
+    explanation: "'Thank you' é obrigado. Please é por favor, Sorry é desculpe.",
+    hint: "Você diz isso quando alguém faz um favor para você."
+  },
+  {
+    id: 'e5', level: 'easy',
+    text: "Qual destes é um dia da semana?",
+    options: ["January", "Monday", "Summer", "Morning"],
+    correctIndex: 1,
+    explanation: "'Monday' (Segunda-feira) é um dia da semana. January é mês, Summer é estação.",
+    hint: "Começa com M e é o primeiro dia útil da semana."
+  },
+  {
+    id: 'e6', level: 'easy',
+    text: "O que significa 'Book'?",
+    options: ["Mesa", "Cadeira", "Livro", "Caneta"],
+    correctIndex: 2,
+    explanation: "'Book' é livro. Mesa é table, cadeira é chair.",
+    hint: "Você usa para ler histórias ou estudar."
+  },
+  {
+    id: 'e7', level: 'easy',
+    text: "Qual é o oposto de 'Big'?",
+    options: ["Small", "Large", "Huge", "Tall"],
+    correctIndex: 0,
+    explanation: "'Small' (Pequeno) é o oposto de 'Big' (Grande).",
+    hint: "Pense em algo minúsculo, pequeno."
+  },
+  {
+    id: 'e8', level: 'easy',
+    text: "Como se diz 'Bom dia'?",
+    options: ["Good night", "Good afternoon", "Good morning", "Goodbye"],
+    correctIndex: 2,
+    explanation: "'Good morning' se usa pela manhã.",
+    hint: "A saudação que usamos quando o sol nasce."
+  },
+
+  // MEDIUM (Nível 4-6)
+  {
+    id: 'm1', level: 'medium',
+    text: "Qual é o passado do verbo 'Go'?",
+    options: ["Goed", "Gone", "Went", "Going"],
+    correctIndex: 2,
+    explanation: "'Go' é um verbo irregular. Seu passado simples é 'Went'.",
+    hint: "Não termina com 'ed' pois é irregular. Começa com W."
+  },
+  {
+    id: 'm2', level: 'medium',
+    text: "O que significa o falso cognato 'Parents'?",
+    options: ["Parentes", "Pais", "Parceiros", "Primos"],
+    correctIndex: 1,
+    explanation: "'Parents' significa Pais (pai e mãe). Parentes em geral são 'Relatives'.",
+    hint: "Refere-se apenas ao seu pai e sua mãe."
+  },
+  {
+    id: 'm3', level: 'medium',
+    text: "Escolha a preposição correta: 'The book is ___ the table.'",
+    options: ["in", "on", "at", "to"],
+    correctIndex: 1,
+    explanation: "Usamos 'on' quando algo está sobre uma superfície.",
+    hint: "Indica que o objeto está em cima da superfície."
+  },
+  {
+    id: 'm4', level: 'medium',
+    text: "Qual a tradução de 'Breakfast'?",
+    options: ["Pausa rápida", "Café da manhã", "Freio", "Jantar"],
+    correctIndex: 1,
+    explanation: "'Breakfast' é a primeira refeição do dia, o café da manhã.",
+    hint: "A refeição que você come de manhã cedo."
+  },
+  {
+    id: 'm5', level: 'medium',
+    text: "Qual frase está no 'Present Continuous'?",
+    options: ["I play soccer.", "I am playing soccer.", "I played soccer.", "I will play soccer."],
+    correctIndex: 1,
+    explanation: "O Present Continuous usa verbo to be + verbo com ING (am playing).",
+    hint: "Procure pela terminação -ING indicando uma ação agora."
+  },
+  {
+    id: 'm6', level: 'medium',
+    text: "O que significa 'Library'?",
+    options: ["Livraria", "Biblioteca", "Liberdade", "Laboratório"],
+    correctIndex: 1,
+    explanation: "'Library' é Biblioteca (onde se empresta livros). Livraria (loja) é 'Bookstore'.",
+    hint: "Lugar silencioso onde você estuda e pega livros emprestados."
+  },
+  {
+    id: 'm7', level: 'medium',
+    text: "Complete: 'She ___ speak English very well.'",
+    options: ["can", "cans", "to can", "canning"],
+    correctIndex: 0,
+    explanation: "O verbo modal 'Can' não muda na terceira pessoa (não ganha 's').",
+    hint: "Verbos modais não sofrem conjugação com S."
+  },
+  {
+    id: 'm8', level: 'medium',
+    text: "O que significa o verbo 'Push'?",
+    options: ["Puxar", "Empurrar", "Pular", "Pegar"],
+    correctIndex: 1,
+    explanation: "'Push' é Empurrar. Puxar é 'Pull'. É um falso cognato visual.",
+    hint: "O contrário de Puxar. Você faz força para frente."
+  },
+
+  // HARD (Nível 7-8)
+  {
+    id: 'h1', level: 'hard',
+    text: "Qual frase está no 'Present Perfect'?",
+    options: ["I saw him.", "I have seen him.", "I bad seen him.", "I see him."],
+    correctIndex: 1,
+    explanation: "Present Perfect é formado por Have/Has + Particípio (Have seen).",
+    hint: "Procure pelo auxiliar 'Have' seguido de um verbo no particípio."
+  },
+  {
+    id: 'h2', level: 'hard',
+    text: "O que significa 'Pretend'?",
+    options: ["Pretender", "Fingir", "Prender", "Entender"],
+    correctIndex: 1,
+    explanation: "'Pretend' é Fingir. Pretender é 'Intend'.",
+    hint: "Falso cognato. É o que atores fazem."
+  },
+  {
+    id: 'h3', level: 'hard',
+    text: "Complete a condicional: 'If I ___ you, I would go.'",
+    options: ["was", "am", "were", "be"],
+    correctIndex: 2,
+    explanation: "Na segunda condicional (situação hipotética), usamos 'Were' para todas as pessoas, inclusive I.",
+    hint: "Forma subjuntiva do verbo to be usada em hipóteses."
+  },
+  {
+    id: 'h4', level: 'hard',
+    text: "O que significa o Phrasal Verb 'Give up'?",
+    options: ["Dar cima", "Desistir", "Levantar", "Começar"],
+    correctIndex: 1,
+    explanation: "'Give up' significa desistir de algo.",
+    hint: "Quando você para de tentar fazer algo."
+  },
+  {
+    id: 'h5', level: 'hard',
+    text: "Qual a tradução de 'Actually'?",
+    options: ["Atualmente", "Na verdade", "Ação", "Agilidade"],
+    correctIndex: 1,
+    explanation: "'Actually' significa 'Na verdade' ou 'De fato'. Atualmente é 'Currently'.",
+    hint: "Usado para corrigir uma informação ou dar ênfase a um fato."
+  },
+  {
+    id: 'h6', level: 'hard',
+    text: "Voz Passiva: 'The cake ___ by my mom.'",
+    options: ["was made", "made", "has made", "is make"],
+    correctIndex: 0,
+    explanation: "A voz passiva no passado usa Was/Were + Particípio (Was made).",
+    hint: "O bolo sofreu a ação de ser feito."
+  },
+
+  // EXPERT (Nível 9-10)
+  {
+    id: 'x1', level: 'expert',
+    text: "O que significa a expressão 'Piece of cake'?",
+    options: ["Pedaço de bolo", "Algo muito fácil", "Uma mentira", "Algo delicioso"],
+    correctIndex: 1,
+    explanation: "'Piece of cake' é uma idiom que significa que algo é muito fácil (Moleza).",
+    hint: "Equivalente a 'mamão com açúcar' em português."
+  },
+  {
+    id: 'x2', level: 'expert',
+    text: "O que significa 'Break a leg'?",
+    options: ["Quebre uma perna", "Boa sorte", "Vá ao médico", "Desista"],
+    correctIndex: 1,
+    explanation: "No teatro, 'Break a leg' é usado para desejar Boa Sorte.",
+    hint: "Desejo irônico de sorte, muito usado no teatro."
+  },
+  {
+    id: 'x3', level: 'expert',
+    text: "Qual a forma correta da inversão?",
+    options: ["Never I have seen...", "Never have I seen...", "I have never seen...", "Seen never I have..."],
+    correctIndex: 1,
+    explanation: "Quando começamos com 'Never' para ênfase, invertemos o auxiliar e o sujeito: 'Never have I...'",
+    hint: "Estrutura formal onde o auxiliar vem antes do sujeito por causa do 'Never'."
+  },
+  {
+    id: 'x4', level: 'expert',
+    text: "Significado de 'Call it a day':",
+    options: ["Ligar de dia", "Encerrar o trabalho por hoje", "Chamar pelo nome", "Marcar uma data"],
+    correctIndex: 1,
+    explanation: "'Call it a day' significa parar de trabalhar no que se está fazendo pelo resto do dia.",
+    hint: "Expressão usada quando você quer ir para casa descansar."
+  },
+  {
+    id: 'x5', level: 'expert',
+    text: "Qual a diferença entre 'Make' e 'Do'?",
+    options: ["Não há diferença", "Make é criar/fabricar, Do é executar ação", "Make é executar, Do é criar", "Make é formal, Do é informal"],
+    correctIndex: 1,
+    explanation: "Geralmente, 'Make' é para criar algo novo (bolo, erro), 'Do' é para tarefas/atividades (trabalho, exercícios).",
+    hint: "Um foca no produto final, o outro na ação em si."
+  }
+];
 
 // --- Helper Functions ---
 
-const getApiKey = (): string | undefined => {
-  // 1. Check LocalStorage (Manual Entry)
-  const storedKey = localStorage.getItem('gemini_api_key');
-  if (storedKey) return storedKey;
-
-  // 2. Check Environment Variable (Automatic/IDX)
-  try {
-    return process.env.API_KEY;
-  } catch (e) {
-    return undefined;
-  }
+const getDifficultyForIndex = (index: number): 'easy' | 'medium' | 'hard' | 'expert' => {
+  if (index < 3) return 'easy';
+  if (index < 6) return 'medium';
+  if (index < 9) return 'hard';
+  return 'expert';
 };
 
-const getDifficultyParams = (index: number) => {
-  let level = "Básico (Nível A1/A2)";
-  let tier: keyof typeof TOPICS = 'easy';
+const getStaticQuestion = (index: number, usedIds: string[]): Question => {
+  const level = getDifficultyForIndex(index);
   
-  if (index >= 3) { level = "Intermediário (Nível B1/B2)"; tier = 'medium'; }
-  if (index >= 6) { level = "Avançado (Nível C1)"; tier = 'hard'; }
-  if (index >= 9) { level = "Fluente/Nativo (Nível C2 - Vocabulary/Nuance)"; tier = 'expert'; }
+  // Filter questions by current level
+  const availableQuestions = QUESTION_BANK.filter(
+    q => q.level === level && !usedIds.includes(q.id)
+  );
 
-  const topics = TOPICS[tier];
-  const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-  
-  return { level, topic: randomTopic };
-};
+  // If we run out of questions for a level (fallback), reuse questions but try not to pick the immediate last one if possible
+  const pool = availableQuestions.length > 0 
+    ? availableQuestions 
+    : QUESTION_BANK.filter(q => q.level === level);
 
-const generateQuestion = async (index: number): Promise<Question> => {
-  const apiKey = getApiKey();
-  
-  // Pre-checks
-  if (!apiKey) {
-    throw new Error("API_KEY_MISSING");
-  }
-  if (!navigator.onLine) {
-    throw new Error("Sem conexão com a internet. Verifique seu Wi-Fi ou dados móveis.");
-  }
-
-  const ai = new GoogleGenAI({ apiKey: apiKey });
-  const { level, topic } = getDifficultyParams(index);
-  
-  const systemInstruction = `Você é um gerador de perguntas para o 'Show do Milhão' (Edição Inglês).
-  Seu objetivo é testar o conhecimento de inglês de falantes de português.
-  
-  Regras:
-  1. A pergunta deve ser clara.
-  2. As opções devem ser 4.
-  3. A explicação deve ser educativa.
-  4. Respeite rigorosamente o nível de dificuldade solicitado.
-  5. Retorne APENAS JSON válido.`;
-
-  const prompt = `Gere uma pergunta de múltipla escolha.
-  Nível: ${level}
-  Tópico: ${topic}
-  
-  Se o nível for Avançado/Fluente, use vocabulário complexo ou gramática avançada.`;
-
-  // Increased retries for mobile stability (4 attempts)
-  const MAX_ATTEMPTS = 4;
-
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: {
-          systemInstruction: systemInstruction,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              text: { type: Type.STRING, description: "A pergunta em português ou inglês (contextualizada)" },
-              options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 opções de resposta" },
-              correctIndex: { type: Type.INTEGER, description: "Índice da correta (0-3)" },
-              explanation: { type: Type.STRING, description: "Por que a resposta está correta" }
-            },
-            required: ["text", "options", "correctIndex", "explanation"]
-          }
-        }
-      });
-
-      if (response.text) {
-        // Robust JSON cleaning to handle potential markdown backticks
-        let cleanText = response.text.trim();
-        cleanText = cleanText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
-        
-        const start = cleanText.indexOf('{');
-        const end = cleanText.lastIndexOf('}');
-        
-        if (start !== -1 && end !== -1) {
-          const jsonStr = cleanText.substring(start, end + 1);
-          const data = JSON.parse(jsonStr) as Question;
-          
-          if (data.options && data.options.length === 4 && typeof data.correctIndex === 'number') {
-             return data;
-          }
-        }
-      }
-    } catch (e: any) {
-      console.warn(`Attempt ${attempt + 1} failed:`, e);
-      if (attempt < MAX_ATTEMPTS - 1) {
-        await new Promise(res => setTimeout(res, 1000 * (attempt + 1)));
-      }
-    }
-  }
-
-  throw new Error("Instabilidade na conexão com a IA. Tente novamente.");
-};
-
-const getAiHelp = async (question: Question): Promise<string> => {
-  const apiKey = getApiKey();
-  if (!apiKey || !navigator.onLine) return "Sem conexão para pedir ajuda!";
-
-  const ai = new GoogleGenAI({ apiKey: apiKey });
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `Jogo de perguntas. Pergunta: "${question.text}". Opções: ${question.options.join(', ')}. Resposta correta índice: ${question.correctIndex}.
-      Dê uma dica curta e divertida para ajudar o jogador a chegar na resposta, sem dar a resposta explicitamente.`,
-    });
-    return response.text || "Pense bem no contexto da frase!";
-  } catch (e) {
-    console.error("AI Help failed", e);
-    return "Minha conexão telepática falhou! Confie no seu instinto.";
-  }
+  const randomIndex = Math.floor(Math.random() * pool.length);
+  return pool[randomIndex];
 };
 
 // --- Components ---
@@ -271,9 +374,9 @@ const App = () => {
   // Game State
   const [gameState, setGameState] = useState<GameState>('START');
   
-  // Dynamic Questions State
+  // Questions State
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [isFetchingNext, setIsFetchingNext] = useState(false);
+  const [usedQuestionIds, setUsedQuestionIds] = useState<string[]>([]);
   
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -283,13 +386,11 @@ const App = () => {
   const [leaderboard, setLeaderboard] = useState<ScoreEntry[]>([]);
 
   // Lifelines
-  const [lifelines, setLifelines] = useState<Lifelines>({ fiftyFifty: true, skips: 3, aiHelp: true });
+  const [lifelines, setLifelines] = useState<Lifelines>({ fiftyFifty: true, skips: 3, hint: true });
   
   const [hiddenOptions, setHiddenOptions] = useState<number[]>([]);
-  const [aiTip, setAiTip] = useState<string | null>(null);
+  const [activeHint, setActiveHint] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [missingKey, setMissingKey] = useState(false);
-  const [manualKey, setManualKey] = useState('');
   const [isSkipping, setIsSkipping] = useState(false);
 
   // Load Leaderboard on Mount
@@ -302,35 +403,21 @@ const App = () => {
         console.error("Erro ao carregar leaderboard", e);
       }
     }
-    
-    // Check if key is already present on mount to update UI state
-    const existingKey = getApiKey();
-    if (existingKey) {
-      setMissingKey(false);
-    } else {
-      setMissingKey(true);
-    }
   }, []);
 
-  // Pre-fetch Logic
+  // Pre-fetch Next Question Logic (Adapted for Static)
   useEffect(() => {
-    const prefetch = async () => {
-      if (gameState === 'PLAYING' && questions.length <= currentQIndex + 1 && questions.length < PRIZE_LADDER.length && !isFetchingNext) {
-        setIsFetchingNext(true);
-        try {
-          const nextIndex = questions.length;
-          const q = await generateQuestion(nextIndex);
-          setQuestions(prev => [...prev, q]);
-        } catch (e) {
-          console.error("Falha silenciosa no pre-fetch:", e);
-        } finally {
-          setIsFetchingNext(false);
-        }
+    const prefetch = () => {
+      if (gameState === 'PLAYING' && questions.length <= currentQIndex + 1 && questions.length < PRIZE_LADDER.length) {
+        const nextIndex = questions.length;
+        const q = getStaticQuestion(nextIndex, usedQuestionIds);
+        setQuestions(prev => [...prev, q]);
+        setUsedQuestionIds(prev => [...prev, q.id]);
       }
     };
     
     prefetch();
-  }, [gameState, questions.length, currentQIndex, isFetchingNext]);
+  }, [gameState, questions.length, currentQIndex]);
 
   const saveScore = (prize: number) => {
     if (prize === 0) return;
@@ -349,81 +436,28 @@ const App = () => {
     localStorage.setItem('show-ingles-leaderboard', JSON.stringify(newLeaderboard));
   };
 
-  const handleConnectApiKey = async () => {
-    if (window.aistudio && window.aistudio.openSelectKey) {
-      try {
-        await window.aistudio.openSelectKey();
-        setErrorMsg(null);
-        setMissingKey(false);
-      } catch (e) {
-        console.error("Failed to select key", e);
-        setErrorMsg("Falha ao selecionar chave. Tente novamente.");
-      }
-    } else {
-      setErrorMsg("Ambiente não suporta seleção automática. Configure a API Key manualmente.");
-    }
-  };
-
-  const handleSaveManualKey = () => {
-    if (!manualKey.trim().startsWith('AIza')) {
-      setErrorMsg("A chave parece inválida (geralmente começa com 'AIza').");
-      return;
-    }
-    localStorage.setItem('gemini_api_key', manualKey.trim());
-    setMissingKey(false);
-    setErrorMsg(null);
-    // Don't auto-start, let user click play to ensure they are ready
-  };
-
-  const startGame = async () => {
+  const startGame = () => {
     if (!playerName.trim()) {
       setErrorMsg("Por favor, digite seu nome para começar.");
       return;
     }
 
-    // Initial API Key Check
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      setMissingKey(true);
-      setErrorMsg("É necessário configurar uma API Key para jogar.");
-      return;
-    }
-
     setGameState('LOADING');
     setErrorMsg(null);
-    setMissingKey(false);
     setQuestions([]);
+    setUsedQuestionIds([]);
     
-    try {
-      if (!navigator.onLine) {
-         throw new Error("Você está offline. Conecte-se à internet.");
-      }
-
-      const firstQ = await generateQuestion(0);
+    // Simulate short loading for effect
+    setTimeout(() => {
+      const firstQ = getStaticQuestion(0, []);
       setQuestions([firstQ]);
+      setUsedQuestionIds([firstQ.id]);
       setCurrentQIndex(0);
-      setLifelines({ fiftyFifty: true, skips: 3, aiHelp: true });
+      setLifelines({ fiftyFifty: true, skips: 3, hint: true });
       setHiddenOptions([]);
-      setAiTip(null);
+      setActiveHint(null);
       setGameState('PLAYING');
-    } catch (err: any) {
-      console.error(err);
-      const msg = err.message === "API_KEY_MISSING" 
-        ? "Chave de API inválida ou não encontrada." 
-        : (err.message || "Erro de conexão. Tente novamente.");
-      
-      setErrorMsg(msg);
-      
-      if (err.message === "API_KEY_MISSING") {
-        setMissingKey(true);
-        // If the stored key is invalid, maybe clear it so user can enter a new one
-        if (localStorage.getItem('gemini_api_key')) {
-           localStorage.removeItem('gemini_api_key');
-        }
-      }
-      
-      setGameState('START');
-    }
+    }, 1500);
   };
 
   const handleAnswer = (index: number) => {
@@ -447,7 +481,7 @@ const App = () => {
         setCurrentQIndex(prev => prev + 1);
         setSelectedOption(null);
         setHiddenOptions([]);
-        setAiTip(null);
+        setActiveHint(null);
         setGameState('PLAYING');
       }
     } else {
@@ -472,40 +506,47 @@ const App = () => {
     setLifelines(prev => ({ ...prev, fiftyFifty: false }));
   };
 
-  const useSkip = async () => {
+  const useSkip = () => {
     if (lifelines.skips <= 0 || isSkipping) return;
     
     setIsSkipping(true);
-    setAiTip(null);
+    setActiveHint(null);
 
-    try {
-      const newQuestion = await generateQuestion(currentQIndex);
-      
-      setQuestions(prev => {
-        const updated = [...prev];
-        updated[currentQIndex] = newQuestion;
-        return updated;
-      });
-      
-      setSelectedOption(null);
-      setHiddenOptions([]);
-      setLifelines(prev => ({ ...prev, skips: prev.skips - 1 }));
-      
-    } catch (error) {
-      console.error("Erro ao pular pergunta:", error);
-    } finally {
-      setIsSkipping(false);
-    }
+    // Simulate skip delay
+    setTimeout(() => {
+        // Replace current question with another from same level
+        const currentQ = questions[currentQIndex];
+        // Remove current from used IDs temporarily to allow finding a new one (though strict unique is better)
+        // Ideally find a question not in usedQuestionIds with same level
+        let newQuestion = getStaticQuestion(currentQIndex, usedQuestionIds);
+        
+        // If we got the same question (bank exhausted), just force it
+        if(newQuestion.id === currentQ.id) {
+           // Retry once to be sure
+           newQuestion = getStaticQuestion(currentQIndex, usedQuestionIds.filter(id => id !== currentQ.id));
+        }
+
+        setQuestions(prev => {
+            const updated = [...prev];
+            updated[currentQIndex] = newQuestion;
+            return updated;
+        });
+        setUsedQuestionIds(prev => [...prev, newQuestion.id]);
+
+        setSelectedOption(null);
+        setHiddenOptions([]);
+        setLifelines(prev => ({ ...prev, skips: prev.skips - 1 }));
+        setIsSkipping(false);
+    }, 1000);
   };
 
-  const useAiHelp = async () => {
-    if (!lifelines.aiHelp) return;
+  const useHint = () => {
+    if (!lifelines.hint) return;
     const currentQ = questions[currentQIndex];
     if (!currentQ) return;
 
-    setLifelines(prev => ({ ...prev, aiHelp: false }));
-    const tip = await getAiHelp(currentQ);
-    setAiTip(tip);
+    setLifelines(prev => ({ ...prev, hint: false }));
+    setActiveHint(currentQ.hint);
   };
 
   // --- Render Screens ---
@@ -529,7 +570,7 @@ const App = () => {
               <GameLogo />
             </div>
             
-            <p className="text-slate-400 mb-8 text-lg font-light">Teste seu inglês com IA em tempo real.</p>
+            <p className="text-slate-400 mb-8 text-lg font-light">Teste seu inglês e ganhe milhões (virtuais)!</p>
             
             <div className="w-full max-w-sm space-y-4">
               <div className="relative">
@@ -544,80 +585,10 @@ const App = () => {
                 />
               </div>
 
-              {missingKey ? (
-                 <div className="space-y-3 animate-in fade-in slide-in-from-top-4 bg-slate-800/50 p-4 rounded-2xl border border-white/10">
-                   <div className="flex items-center gap-2 text-yellow-400 mb-1">
-                      <AlertTriangle size={16} />
-                      <span className="text-xs font-bold uppercase">Configuração Necessária</span>
-                   </div>
-                   
-                   <p className="text-xs text-slate-400 text-left mb-2">
-                     Para jogar, você precisa inserir sua chave da API Gemini (Google AI Studio). Ela será salva apenas no seu navegador.
-                   </p>
-
-                   <div className="relative">
-                      <input 
-                        type="password"
-                        value={manualKey}
-                        onChange={(e) => setManualKey(e.target.value)}
-                        placeholder="Cole sua chave aqui (começa com AIza...)"
-                        className="w-full bg-slate-950/80 border border-white/10 rounded-xl py-3 px-4 pr-12 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all"
-                      />
-                      <button 
-                        onClick={handleSaveManualKey}
-                        disabled={!manualKey}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-600 rounded-lg hover:bg-emerald-500 disabled:opacity-0 disabled:pointer-events-none transition-all text-white shadow-lg"
-                        title="Salvar Chave"
-                      >
-                        <Save size={16} />
-                      </button>
-                   </div>
-
-                   {window.aistudio && (
-                     <>
-                        <div className="relative py-1">
-                          <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-white/5" />
-                          </div>
-                          <div className="relative flex justify-center text-[10px] uppercase">
-                            <span className="bg-[#162032] px-2 text-slate-600">Ou</span>
-                          </div>
-                        </div>
-                        <Button onClick={handleConnectApiKey} className="w-full text-xs py-2 h-auto" variant="secondary">
-                          <KeyRound className="fill-current" size={14} />
-                          Usar conta Google (IDX)
-                        </Button>
-                     </>
-                   )}
-                   
-                   <a 
-                     href="https://aistudio.google.com/app/apikey" 
-                     target="_blank" 
-                     rel="noreferrer"
-                     className="inline-flex items-center gap-1 text-[10px] text-indigo-400 hover:text-indigo-300 hover:underline mt-1"
-                   >
-                     Gerar chave gratuita no Google AI Studio <ExternalLink size={10} />
-                   </a>
-                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <Button onClick={startGame} className="w-full text-lg py-4 shadow-violet-500/20" disabled={!playerName.trim()}>
-                    <Play className="fill-current" />
-                    JOGAR AGORA
-                  </Button>
-                  
-                  <button 
-                    onClick={() => {
-                      localStorage.removeItem('gemini_api_key');
-                      setMissingKey(true);
-                      setManualKey('');
-                    }}
-                    className="text-xs text-slate-500 hover:text-red-400 underline decoration-dotted"
-                  >
-                    Trocar Chave de API
-                  </button>
-                </div>
-              )}
+              <Button onClick={startGame} className="w-full text-lg py-4 shadow-violet-500/20" disabled={!playerName.trim()}>
+                <Play className="fill-current" />
+                JOGAR AGORA
+              </Button>
             </div>
 
             {errorMsg && (
@@ -681,10 +652,9 @@ const App = () => {
             <div className="absolute inset-0 bg-violet-500 blur-xl opacity-20"></div>
             <Loader2 size={64} className="animate-spin text-violet-400 mb-6" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Conectando à IA...</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">Preparando Perguntas...</h2>
           <p className="text-slate-400 animate-pulse text-center px-4">
-             Criando perguntas exclusivas para <span className="text-indigo-400 font-bold">{playerName}</span>.<br/>
-             <span className="text-xs opacity-70">Isso pode levar alguns segundos dependendo da conexão.</span>
+             Organizando o desafio para <span className="text-indigo-400 font-bold">{playerName}</span>.
           </p>
         </div>
       </div>
@@ -745,12 +715,12 @@ const App = () => {
   // Handle waiting for next question
   const currentQ = questions[currentQIndex];
   
-  // If we are playing but the question hasn't loaded yet (fast player!)
+  // If we are playing but the question hasn't loaded yet
   if (!currentQ && gameState === 'PLAYING') {
     return (
       <div className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center">
         <Loader2 size={48} className="animate-spin text-indigo-400 mb-4" />
-        <p className="text-indigo-200 font-bold animate-pulse">Gerando próxima pergunta...</p>
+        <p className="text-indigo-200 font-bold animate-pulse">Carregando pergunta...</p>
       </div>
     );
   }
@@ -822,7 +792,7 @@ const App = () => {
            {/* Level Badge */}
            <div className="flex items-center gap-2 mb-4">
              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
-               {currentQIndex < 3 ? 'Nível Básico' : currentQIndex < 6 ? 'Nível Médio' : currentQIndex < 9 ? 'Nível Difícil' : 'Nível Especialista'}
+               {currentQ.level === 'easy' ? 'Nível Básico' : currentQ.level === 'medium' ? 'Nível Médio' : currentQ.level === 'hard' ? 'Nível Difícil' : 'Nível Especialista'}
              </div>
            </div>
            
@@ -830,15 +800,15 @@ const App = () => {
              {currentQ.text}
            </h2>
 
-           {/* AI Tip Bubble */}
-           {aiTip && (
-             <div className="mt-6 bg-indigo-950/60 border border-indigo-500/30 p-4 rounded-xl flex gap-4 animate-in fade-in slide-in-from-left-4">
-               <div className="bg-indigo-500/20 p-2 rounded-lg h-fit">
-                 <Sparkles className="text-indigo-300" size={20} />
+           {/* Hint Bubble */}
+           {activeHint && (
+             <div className="mt-6 bg-yellow-950/60 border border-yellow-500/30 p-4 rounded-xl flex gap-4 animate-in fade-in slide-in-from-left-4">
+               <div className="bg-yellow-500/20 p-2 rounded-lg h-fit">
+                 <Lightbulb className="text-yellow-300" size={20} />
                </div>
                <div>
-                 <p className="text-indigo-200 text-sm italic leading-relaxed">"{aiTip}"</p>
-                 <p className="text-[10px] text-indigo-400 mt-1 font-bold uppercase tracking-wider">Dica da IA</p>
+                 <p className="text-yellow-200 text-sm italic leading-relaxed">"{activeHint}"</p>
+                 <p className="text-[10px] text-yellow-400 mt-1 font-bold uppercase tracking-wider">Dica</p>
                </div>
              </div>
            )}
@@ -938,9 +908,9 @@ const App = () => {
             />
             <LifelineButton 
               icon={<Brain size={20} />} 
-              label="Ajuda IA" 
-              active={lifelines.aiHelp && !isSkipping} 
-              onClick={useAiHelp} 
+              label="Dica" 
+              active={lifelines.hint && !isSkipping} 
+              onClick={useHint} 
             />
           </div>
         </footer>
