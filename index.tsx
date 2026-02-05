@@ -105,7 +105,14 @@ const generateQuestion = async (index: number): Promise<Question> => {
   });
 
   if (response.text) {
-    return JSON.parse(response.text) as Question;
+    // Remove markdown code blocks if present (fixes common JSON parse errors)
+    const cleanText = response.text.replace(/```json|```/g, '').trim();
+    try {
+      return JSON.parse(cleanText) as Question;
+    } catch (e) {
+      console.error("Failed to parse JSON:", cleanText);
+      throw new Error("Erro ao processar resposta da IA");
+    }
   }
   throw new Error("Falha ao gerar pergunta");
 };
