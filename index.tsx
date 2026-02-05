@@ -19,10 +19,22 @@ import {
   User,
   ListOrdered,
   WifiOff,
-  AlertTriangle
+  AlertTriangle,
+  KeyRound
 } from "lucide-react";
 
 // --- Types ---
+
+declare global {
+  interface AIStudio {
+    openSelectKey: () => Promise<void>;
+    hasSelectedApiKey: () => Promise<boolean>;
+  }
+
+  interface Window {
+    aistudio?: AIStudio;
+  }
+}
 
 interface Question {
   text: string;
@@ -58,7 +70,16 @@ const TOPICS = {
   expert: ["Expressões Idiomáticas (Idioms)", "Gírias Nativas", "Inversão Gramatical", "Vocabulário Acadêmico", "Nuances de Significado", "Phrasal Verbs Avançados", "Inglês Literário", "Mixed Conditionals"]
 };
 
-// --- API Helper ---
+// --- Helper Functions ---
+
+const getApiKey = (): string | undefined => {
+  // Safety check for process.env usage in browsers
+  try {
+    return process.env.API_KEY;
+  } catch (e) {
+    return undefined;
+  }
+};
 
 const getDifficultyParams = (index: number) => {
   let level = "Básico (Nível A1/A2)";
@@ -75,15 +96,17 @@ const getDifficultyParams = (index: number) => {
 };
 
 const generateQuestion = async (index: number): Promise<Question> => {
+  const apiKey = getApiKey();
+  
   // Pre-checks
-  if (!process.env.API_KEY) {
-    throw new Error("Erro de Configuração: API_KEY não encontrada.");
+  if (!apiKey) {
+    throw new Error("API_KEY_MISSING");
   }
   if (!navigator.onLine) {
     throw new Error("Sem conexão com a internet. Verifique seu Wi-Fi ou dados móveis.");
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: apiKey });
   const { level, topic } = getDifficultyParams(index);
   
   const systemInstruction = `Você é um gerador de perguntas para o 'Show do Milhão' (Edição Inglês).
@@ -103,7 +126,6 @@ const generateQuestion = async (index: number): Promise<Question> => {
   Se o nível for Avançado/Fluente, use vocabulário complexo ou gramática avançada.`;
 
   // Increased retries for mobile stability (4 attempts)
-  // Backoff: 1s, 2s, 3s, 4s
   const MAX_ATTEMPTS = 4;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
@@ -130,7 +152,6 @@ const generateQuestion = async (index: number): Promise<Question> => {
       if (response.text) {
         // Robust JSON cleaning to handle potential markdown backticks
         let cleanText = response.text.trim();
-        // Remove markdown code blocks if present
         cleanText = cleanText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
         
         const start = cleanText.indexOf('{');
@@ -140,7 +161,6 @@ const generateQuestion = async (index: number): Promise<Question> => {
           const jsonStr = cleanText.substring(start, end + 1);
           const data = JSON.parse(jsonStr) as Question;
           
-          // Basic validation of the data
           if (data.options && data.options.length === 4 && typeof data.correctIndex === 'number') {
              return data;
           }
@@ -148,23 +168,20 @@ const generateQuestion = async (index: number): Promise<Question> => {
       }
     } catch (e: any) {
       console.warn(`Attempt ${attempt + 1} failed:`, e);
-      
-      // If it's the last attempt, don't wait, just let it fail
       if (attempt < MAX_ATTEMPTS - 1) {
-        // Wait longer on mobile to allow connection to stabilize
         await new Promise(res => setTimeout(res, 1000 * (attempt + 1)));
       }
     }
   }
 
-  // If we get here, all retries failed.
   throw new Error("Instabilidade na conexão com a IA. Tente novamente.");
 };
 
 const getAiHelp = async (question: Question): Promise<string> => {
-  if (!process.env.API_KEY || !navigator.onLine) return "Sem conexão para pedir ajuda!";
+  const apiKey = getApiKey();
+  if (!apiKey || !navigator.onLine) return "Sem conexão para pedir ajuda!";
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: apiKey });
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -217,71 +234,31 @@ const Button = ({
 };
 
 // --- Logo Component ---
-const GameLogo = () => (
-  <svg 
-    viewBox="0 0 600 300" 
-    className="w-full max-w-[320px] sm:max-w-[400px] drop-shadow-2xl animate-in zoom-in duration-700 mx-auto"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <defs>
-      <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#312e81" />
-        <stop offset="50%" stopColor="#4338ca" />
-        <stop offset="100%" stopColor="#312e81" />
-      </linearGradient>
-      <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#fde047" />
-        <stop offset="50%" stopColor="#eab308" />
-        <stop offset="100%" stopColor="#ca8a04" />
-      </linearGradient>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-        <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-      <filter id="textShadow">
-        <feDropShadow dx="2" dy="2" stdDeviation="1" floodColor="#000" floodOpacity="0.7"/>
-      </filter>
-    </defs>
+const GameLogo = () => {
+  const [error, setError] = useState(false);
 
-    {/* Shapes */}
-    <path 
-      d="M50 150 L300 20 L550 150 L300 280 Z" 
-      fill="url(#bgGrad)" 
-      stroke="#6366f1" 
-      strokeWidth="4"
-      className="drop-shadow-lg"
-    />
-    
-    <path 
-      d="M70 150 L300 40 L530 150 L300 260 Z" 
-      fill="none" 
-      stroke="#818cf8" 
-      strokeWidth="2" 
-      opacity="0.3"
-    />
+  if (error) {
+    // Fallback if image fails to load
+    return (
+      <div className="w-full max-w-[320px] mx-auto text-center p-6 border-4 border-yellow-400 rounded-2xl bg-gradient-to-b from-blue-900 to-blue-800 shadow-2xl animate-in zoom-in">
+        <h1 className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 tracking-tighter drop-shadow-sm" style={{ fontFamily: 'Arial Black, sans-serif' }}>
+          SHOW DO<br/>INGLÊS
+        </h1>
+      </div>
+    );
+  }
 
-    {/* Text */}
-    <g style={{ fontFamily: 'Arial Black, sans-serif', textAnchor: 'middle' }}>
-      <text x="300" y="135" fontSize="55" fill="url(#goldGrad)" stroke="#854d0e" strokeWidth="2" filter="url(#textShadow)">
-        SHOW DO
-      </text>
-      <text x="300" y="215" fontSize="85" fill="url(#goldGrad)" stroke="#854d0e" strokeWidth="2.5" filter="url(#textShadow)">
-        INGLÊS
-      </text>
-    </g>
-
-    {/* Decorative Stars */}
-    <g fill="#fff">
-      <circle cx="100" cy="150" r="3" className="animate-pulse" />
-      <circle cx="500" cy="150" r="3" className="animate-pulse" style={{ animationDelay: '0.5s' }} />
-      <circle cx="300" cy="50" r="3" className="animate-pulse" style={{ animationDelay: '0.2s' }} />
-      <circle cx="300" cy="250" r="3" className="animate-pulse" style={{ animationDelay: '0.7s' }} />
-    </g>
-  </svg>
-);
+  return (
+    <div className="relative w-full max-w-[280px] sm:max-w-[350px] mx-auto animate-in zoom-in duration-700">
+       <img 
+         src="https://upload.wikimedia.org/wikipedia/pt/1/10/Logo_Show_do_Milh%C3%A3o.png"
+         alt="Logo Show do Milhão"
+         onError={() => setError(true)}
+         className="relative z-10 w-full h-auto object-contain drop-shadow-2xl filter brightness-110 contrast-110 hover:scale-105 transition-transform duration-500"
+       />
+    </div>
+  );
+};
 
 const App = () => {
   // Game State
@@ -304,6 +281,7 @@ const App = () => {
   const [hiddenOptions, setHiddenOptions] = useState<number[]>([]);
   const [aiTip, setAiTip] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [missingKey, setMissingKey] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
 
   // Load Leaderboard on Mount
@@ -321,7 +299,6 @@ const App = () => {
   // Pre-fetch Logic
   useEffect(() => {
     const prefetch = async () => {
-      // Only fetch if playing, not full, and next question doesn't exist yet
       if (gameState === 'PLAYING' && questions.length <= currentQIndex + 1 && questions.length < PRIZE_LADDER.length && !isFetchingNext) {
         setIsFetchingNext(true);
         try {
@@ -330,7 +307,6 @@ const App = () => {
           setQuestions(prev => [...prev, q]);
         } catch (e) {
           console.error("Falha silenciosa no pre-fetch:", e);
-          // Don't show error here, wait until user actually needs the question
         } finally {
           setIsFetchingNext(false);
         }
@@ -357,23 +333,50 @@ const App = () => {
     localStorage.setItem('show-ingles-leaderboard', JSON.stringify(newLeaderboard));
   };
 
+  const handleConnectApiKey = async () => {
+    if (window.aistudio && window.aistudio.openSelectKey) {
+      try {
+        await window.aistudio.openSelectKey();
+        setErrorMsg(null);
+        setMissingKey(false);
+        // We assume success and try to start the game immediately or let the user click play again
+      } catch (e) {
+        console.error("Failed to select key", e);
+        setErrorMsg("Falha ao selecionar chave. Tente novamente.");
+      }
+    } else {
+      setErrorMsg("Ambiente não suporta seleção automática. Configure a API Key manualmente.");
+    }
+  };
+
   const startGame = async () => {
     if (!playerName.trim()) {
       setErrorMsg("Por favor, digite seu nome para começar.");
       return;
     }
 
+    // Initial API Key Check
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      if (window.aistudio) {
+        setMissingKey(true);
+        setErrorMsg("É necessário conectar sua conta Google para jogar.");
+      } else {
+        setErrorMsg("Erro de Configuração: API_KEY não encontrada.");
+      }
+      return;
+    }
+
     setGameState('LOADING');
     setErrorMsg(null);
+    setMissingKey(false);
     setQuestions([]);
     
     try {
-      // Check online status before starting
       if (!navigator.onLine) {
          throw new Error("Você está offline. Conecte-se à internet.");
       }
 
-      // Gera apenas a PRIMEIRA pergunta para começar rápido
       const firstQ = await generateQuestion(0);
       setQuestions([firstQ]);
       setCurrentQIndex(0);
@@ -383,7 +386,16 @@ const App = () => {
       setGameState('PLAYING');
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || "Erro de conexão. Tente novamente.");
+      const msg = err.message === "API_KEY_MISSING" 
+        ? "Chave de API inválida ou não encontrada." 
+        : (err.message || "Erro de conexão. Tente novamente.");
+      
+      setErrorMsg(msg);
+      
+      if (err.message === "API_KEY_MISSING" && window.aistudio) {
+        setMissingKey(true);
+      }
+      
       setGameState('START');
     }
   };
@@ -455,7 +467,6 @@ const App = () => {
       
     } catch (error) {
       console.error("Erro ao pular pergunta:", error);
-      // Optional: Show toast or error for skip fail
     } finally {
       setIsSkipping(false);
     }
@@ -507,10 +518,17 @@ const App = () => {
                 />
               </div>
 
-              <Button onClick={startGame} className="w-full text-lg py-4 shadow-violet-500/20" disabled={!playerName.trim()}>
-                <Play className="fill-current" />
-                JOGAR AGORA
-              </Button>
+              {missingKey ? (
+                 <Button onClick={handleConnectApiKey} className="w-full text-lg py-4 shadow-indigo-500/20" variant="secondary">
+                   <KeyRound className="fill-current" />
+                   CONECTAR CONTA GOOGLE
+                 </Button>
+              ) : (
+                <Button onClick={startGame} className="w-full text-lg py-4 shadow-violet-500/20" disabled={!playerName.trim()}>
+                  <Play className="fill-current" />
+                  JOGAR AGORA
+                </Button>
+              )}
             </div>
 
             {errorMsg && (
