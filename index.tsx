@@ -56,6 +56,70 @@ const TOPICS = {
   expert: ["Expressões Idiomáticas (Idioms)", "Gírias Nativas", "Inversão Gramatical", "Vocabulário Acadêmico", "Nuances de Significado", "Phrasal Verbs Avançados", "Inglês Literário", "Mixed Conditionals"]
 };
 
+// Fallback questions to ensure the game works offline or when API fails
+const FALLBACK_QUESTIONS: Question[] = [
+  {
+    text: "Qual é a tradução correta para 'Book'?",
+    options: ["Mesa", "Livro", "Cadeira", "Caneta"],
+    correctIndex: 1,
+    explanation: "'Book' significa Livro. Mesa é 'Table', Cadeira é 'Chair' e Caneta é 'Pen'."
+  },
+  {
+    text: "Como se diz 'Maçã' em inglês?",
+    options: ["Banana", "Orange", "Apple", "Grape"],
+    correctIndex: 2,
+    explanation: "Maçã em inglês é 'Apple'."
+  },
+  {
+    text: "Qual destas palavras é uma cor?",
+    options: ["Dog", "Blue", "Car", "Run"],
+    correctIndex: 1,
+    explanation: "'Blue' (Azul) é uma cor. As outras são cachorro, carro e correr."
+  },
+  {
+    text: "Complete: 'The sky ___ blue.'",
+    options: ["am", "is", "are", "be"],
+    correctIndex: 1,
+    explanation: "Usamos 'is' para singular (The sky). 'The sky is blue'."
+  },
+  {
+    text: "O que significa 'Teacher'?",
+    options: ["Aluno", "Médico", "Professor", "Engenheiro"],
+    correctIndex: 2,
+    explanation: "'Teacher' é Professor(a)."
+  },
+  {
+    text: "Qual é o passado de 'Go' (Ir)?",
+    options: ["Goed", "Gone", "Went", "Going"],
+    correctIndex: 2,
+    explanation: "'Go' é um verbo irregular. Seu passado simples é 'Went'."
+  },
+  {
+    text: "Como se diz 'Obrigado' em inglês?",
+    options: ["Please", "Sorry", "Hello", "Thank you"],
+    correctIndex: 3,
+    explanation: "Obrigado é 'Thank you' ou 'Thanks'."
+  },
+  {
+    text: "Qual palavra NÃO é um animal?",
+    options: ["Cat", "Dog", "Bird", "Door"],
+    correctIndex: 3,
+    explanation: "'Door' significa Porta. As outras opções são Gato, Cachorro e Pássaro."
+  },
+  {
+    text: "Se hoje é Sunday (Domingo), amanhã será...",
+    options: ["Monday", "Tuesday", "Friday", "Saturday"],
+    correctIndex: 0,
+    explanation: "Depois de Sunday (Domingo) vem Monday (Segunda-feira)."
+  },
+  {
+    text: "O que significa o 'phrasal verb' GIVE UP?",
+    options: ["Continuar", "Desistir", "Subir", "Doar"],
+    correctIndex: 1,
+    explanation: "'Give up' significa desistir de algo."
+  }
+];
+
 // --- API Helper ---
 
 const getDifficultyParams = (index: number) => {
@@ -82,48 +146,66 @@ const generateQuestion = async (index: number): Promise<Question> => {
   A pergunta deve ser desafiadora para este nível específico e educativa.
   Retorne APENAS um objeto JSON.`;
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: prompt,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          text: { type: Type.STRING, description: "A pergunta em português ou inglês (contextualizada)" },
-          options: { 
-            type: Type.ARRAY, 
-            items: { type: Type.STRING },
-            description: "Exatamente 4 opções de resposta"
-          },
-          correctIndex: { type: Type.INTEGER, description: "Índice da resposta correta (0-3)" },
-          explanation: { type: Type.STRING, description: "Explicação breve e educativa sobre o porquê da resposta correta" }
-        },
-        required: ["text", "options", "correctIndex", "explanation"]
-      }
-    }
-  });
-
-  if (response.text) {
-    // Remove markdown code blocks if present (fixes common JSON parse errors)
-    const cleanText = response.text.replace(/```json|```/g, '').trim();
+  // Try 2 times before giving up and using fallback
+  for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      return JSON.parse(cleanText) as Question;
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              text: { type: Type.STRING, description: "A pergunta em português ou inglês (contextualizada)" },
+              options: { 
+                type: Type.ARRAY, 
+                items: { type: Type.STRING },
+                description: "Exatamente 4 opções de resposta"
+              },
+              correctIndex: { type: Type.INTEGER, description: "Índice da resposta correta (0-3)" },
+              explanation: { type: Type.STRING, description: "Explicação breve e educativa sobre o porquê da resposta correta" }
+            },
+            required: ["text", "options", "correctIndex", "explanation"]
+          }
+        }
+      });
+
+      if (response.text) {
+        // Robust JSON extraction: Find the first { and last }
+        const text = response.text;
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}');
+        
+        if (start !== -1 && end !== -1) {
+          const jsonStr = text.substring(start, end + 1);
+          return JSON.parse(jsonStr) as Question;
+        }
+      }
     } catch (e) {
-      console.error("Failed to parse JSON:", cleanText);
-      throw new Error("Erro ao processar resposta da IA");
+      console.warn(`Attempt ${attempt + 1} failed for question generation:`, e);
+      // Wait a short moment before retry (simple backoff)
+      await new Promise(res => setTimeout(res, 500));
     }
   }
-  throw new Error("Falha ao gerar pergunta");
+
+  console.warn("All API attempts failed. Using fallback question.");
+  // Return a fallback question based on index to ensure variety if API fails completely
+  return FALLBACK_QUESTIONS[index % FALLBACK_QUESTIONS.length];
 };
 
 const getAiHelp = async (question: Question): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: `Estou em um game show. Pergunta: "${question.text}". Opções: ${question.options.join(', ')}. Dê uma dica curta, engraçada e útil sem dar a resposta direta.`,
-  });
-  return response.text || "Hmm, essa é difícil até para mim!";
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Estou em um game show. Pergunta: "${question.text}". Opções: ${question.options.join(', ')}. Dê uma dica curta, engraçada e útil sem dar a resposta direta.`,
+    });
+    return response.text || "Hmm, essa é difícil até para mim!";
+  } catch (e) {
+    console.error("AI Help failed", e);
+    return "Minha conexão telepática falhou! Confie no seu instinto.";
+  }
 };
 
 // --- Components ---
@@ -326,7 +408,8 @@ const App = () => {
       setGameState('PLAYING');
     } catch (err) {
       console.error(err);
-      setErrorMsg("Erro de conexão. Tente novamente.");
+      // Fallback guarantees we shouldn't reach here easily, but just in case
+      setErrorMsg("Erro inesperado. Tente novamente.");
       setGameState('START');
     }
   };
