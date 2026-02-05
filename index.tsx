@@ -18,10 +18,7 @@ import {
   Coins,
   User,
   ListOrdered,
-  Wifi,
-  WifiOff,
-  CloudLightning,
-  Database
+  WifiOff
 } from "lucide-react";
 
 // --- Types ---
@@ -31,7 +28,6 @@ interface Question {
   options: string[];
   correctIndex: number;
   explanation: string;
-  source?: 'AI' | 'OFFLINE';
 }
 
 interface ScoreEntry {
@@ -61,91 +57,6 @@ const TOPICS = {
   expert: ["Expressões Idiomáticas (Idioms)", "Gírias Nativas", "Inversão Gramatical", "Vocabulário Acadêmico", "Nuances de Significado", "Phrasal Verbs Avançados", "Inglês Literário", "Mixed Conditionals"]
 };
 
-// Database of offline questions categorized by difficulty
-// Used when API fails or connection is lost
-const OFFLINE_QUESTIONS = {
-  easy: [
-    {
-      text: "Qual é a tradução correta para 'Book'?",
-      options: ["Mesa", "Livro", "Cadeira", "Caneta"],
-      correctIndex: 1,
-      explanation: "'Book' significa Livro. Mesa é 'Table', Cadeira é 'Chair' e Caneta é 'Pen'."
-    },
-    {
-      text: "Complete: 'The sky ___ blue.'",
-      options: ["am", "is", "are", "be"],
-      correctIndex: 1,
-      explanation: "Usamos 'is' para singular (The sky). 'The sky is blue'."
-    },
-    {
-      text: "Qual destas palavras é um animal?",
-      options: ["Car", "Table", "Dog", "Blue"],
-      correctIndex: 2,
-      explanation: "'Dog' (Cachorro) é o único animal da lista."
-    }
-  ],
-  medium: [
-    {
-      text: "Qual frase está no PASSADO simples?",
-      options: ["I go to school.", "I went to school.", "I am going to school.", "I will go to school."],
-      correctIndex: 1,
-      explanation: "'Went' é o passado irregular de 'Go'. As outras estão no presente ou futuro."
-    },
-    {
-      text: "O que significa 'Breakfast'?",
-      options: ["Almoço", "Jantar", "Café da manhã", "Lanche"],
-      correctIndex: 2,
-      explanation: "'Breakfast' é Café da manhã. Almoço é 'Lunch' e Jantar é 'Dinner'."
-    },
-    {
-      text: "Qual a preposição correta: 'The book is ___ the table.'",
-      options: ["in", "on", "at", "to"],
-      correctIndex: 1,
-      explanation: "Usamos 'on' quando algo está sobre uma superfície."
-    }
-  ],
-  hard: [
-    {
-      text: "O que significa o phrasal verb 'RUN OUT OF'?",
-      options: ["Correr fora", "Ficar sem algo", "Fugir", "Encontrar por acaso"],
-      correctIndex: 1,
-      explanation: "'Run out of' significa esgotar o estoque de algo ou ficar sem (ex: We ran out of milk)."
-    },
-    {
-      text: "Qual frase usa corretamente o Present Perfect?",
-      options: ["I have seen that movie yesterday.", "I saw that movie yesterday.", "I have saw that movie.", "I have seen that movie already."],
-      correctIndex: 3,
-      explanation: "Não usamos Present Perfect com tempo definido (yesterday). 'Have seen' + 'already' está correto."
-    },
-    {
-      text: "Selecione o sinônimo de 'Wealthy'.",
-      options: ["Poor", "Rich", "Health", "Weak"],
-      correctIndex: 1,
-      explanation: "'Wealthy' significa rico ou afortunado, sinônimo de 'Rich'."
-    }
-  ],
-  expert: [
-    {
-      text: "O que significa a expressão idiomática 'Bite the bullet'?",
-      options: ["Comer rápido", "Levar um tiro", "Enfrentar uma situação difícil com coragem", "Morder a língua"],
-      correctIndex: 2,
-      explanation: "'Bite the bullet' significa encarar uma situação dolorosa ou desagradável de frente, que era inevitável."
-    },
-    {
-      text: "Qual frase contém uma INVERSÃO gramatical correta?",
-      options: ["Never I have see such a thing.", "Never have I seen such a thing.", "I have never seen such a thing.", "Never saw I such a thing."],
-      correctIndex: 1,
-      explanation: "Em inglês formal, ao começar com adverbiais negativos como 'Never', invertemos o auxiliar e o sujeito: 'Never have I seen...'."
-    },
-    {
-      text: "O que significa 'Serendipity'?",
-      options: ["Tranquilidade absoluta", "Uma descoberta feliz ao acaso", "Piedade profunda", "Indiferença total"],
-      correctIndex: 1,
-      explanation: "'Serendipity' é a ocorrência de encontrar coisas valiosas ou agradáveis por acaso."
-    }
-  ]
-};
-
 // --- API Helper ---
 
 const getDifficultyParams = (index: number) => {
@@ -159,12 +70,12 @@ const getDifficultyParams = (index: number) => {
   const topics = TOPICS[tier];
   const randomTopic = topics[Math.floor(Math.random() * topics.length)];
   
-  return { level, topic: randomTopic, tier };
+  return { level, topic: randomTopic };
 };
 
 const generateQuestion = async (index: number): Promise<Question> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const { level, topic, tier } = getDifficultyParams(index);
+  const { level, topic } = getDifficultyParams(index);
   
   const prompt = `ATENÇÃO: Você é o gerador de perguntas para o 'Show do Milhão'.
   Nível Exigido: ${level}. (Obrigatório respeitar a dificuldade).
@@ -176,8 +87,8 @@ const generateQuestion = async (index: number): Promise<Question> => {
   
   Retorne um objeto JSON válido com: text, options (4 strings), correctIndex (0-3), explanation.`;
 
-  // Try 2 times before giving up and using fallback
-  for (let attempt = 0; attempt < 2; attempt++) {
+  // Try 3 times before giving up
+  for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -205,25 +116,18 @@ const generateQuestion = async (index: number): Promise<Question> => {
         
         if (start !== -1 && end !== -1) {
           const jsonStr = text.substring(start, end + 1);
-          const data = JSON.parse(jsonStr);
-          return { ...data, source: 'AI' };
+          return JSON.parse(jsonStr) as Question;
         }
       }
     } catch (e) {
       console.warn(`Attempt ${attempt + 1} failed for question generation:`, e);
-      // Wait a short moment before retry
-      await new Promise(res => setTimeout(res, 800));
+      // Exponential backoff: 500ms, 1000ms, 1500ms...
+      await new Promise(res => setTimeout(res, 500 * (attempt + 1)));
     }
   }
 
-  console.warn("All API attempts failed. Using offline backup.");
-  
-  // Select a random question from the appropriate tier in offline database
-  const pool = OFFLINE_QUESTIONS[tier];
-  // Use a pseudo-random pick based on index and time to vary it slightly
-  const fallbackQ = pool[(index + Math.floor(Math.random() * 10)) % pool.length];
-  
-  return { ...fallbackQ, source: 'OFFLINE' };
+  // If we get here, all retries failed. Throw error to UI.
+  throw new Error("Falha na conexão com a IA. Tente novamente.");
 };
 
 const getAiHelp = async (question: Question): Promise<string> => {
@@ -440,8 +344,8 @@ const App = () => {
       setGameState('PLAYING');
     } catch (err) {
       console.error(err);
-      // Fallback guarantees we shouldn't reach here easily, but just in case
-      setErrorMsg("Erro inesperado. Tente novamente.");
+      // Removed Fallback - Show error instead
+      setErrorMsg("Não foi possível conectar à IA. Verifique sua conexão e tente novamente.");
       setGameState('START');
     }
   };
@@ -573,7 +477,8 @@ const App = () => {
             </div>
 
             {errorMsg && (
-              <div className="bg-red-500/10 text-red-200 p-3 rounded-xl mt-4 w-full border border-red-500/20 text-sm">
+              <div className="bg-red-500/10 text-red-200 p-3 rounded-xl mt-4 w-full border border-red-500/20 text-sm flex items-center justify-center gap-2">
+                <WifiOff size={16} />
                 {errorMsg}
               </div>
             )}
@@ -767,17 +672,8 @@ const App = () => {
              <HelpCircle size={100} />
            </div>
 
-           {/* Source Badge */}
+           {/* Level Badge (Without source icon) */}
            <div className="flex items-center gap-2 mb-4">
-             {currentQ.source === 'AI' ? (
-               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold uppercase tracking-wider">
-                 <CloudLightning size={12} /> Gerada por IA
-               </div>
-             ) : (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-600/30 border border-slate-500/30 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
-                 <Database size={12} /> Modo Offline
-               </div>
-             )}
              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
                {currentQIndex < 3 ? 'Nível Básico' : currentQIndex < 6 ? 'Nível Médio' : currentQIndex < 9 ? 'Nível Difícil' : 'Nível Especialista'}
              </div>
