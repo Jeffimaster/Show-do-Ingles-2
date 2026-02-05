@@ -54,7 +54,7 @@ const PRIZE_LADDER = [
 // --- Static Question Bank ---
 
 const QUESTION_BANK: Question[] = [
-  // EASY (Nível 1-3)
+  // --- EASY (Nível 1-3) ---
   {
     id: 'e1', level: 'easy',
     text: "Como se diz 'Vermelho' em inglês?",
@@ -119,8 +119,88 @@ const QUESTION_BANK: Question[] = [
     explanation: "'Good morning' se usa pela manhã.",
     hint: "A saudação que usamos quando o sol nasce."
   },
+  {
+    id: 'e9', level: 'easy',
+    text: "Qual é a tradução de 'Water'?",
+    options: ["Leite", "Suco", "Água", "Refrigerante"],
+    correctIndex: 2,
+    explanation: "'Water' significa água. Leite é Milk, Suco é Juice.",
+    hint: "É essencial para a vida e bebemos quando temos sede."
+  },
+  {
+    id: 'e10', level: 'easy',
+    text: "Como se escreve o número 12 em inglês?",
+    options: ["Ten", "Twelve", "Twenty", "Two"],
+    correctIndex: 1,
+    explanation: "12 é 'Twelve'. Ten é 10, Twenty é 20, Two é 2.",
+    hint: "Vem depois do Eleven."
+  },
+  {
+    id: 'e11', level: 'easy',
+    text: "O que significa 'Sister'?",
+    options: ["Irmão", "Mãe", "Tia", "Irmã"],
+    correctIndex: 3,
+    explanation: "'Sister' é Irmã. Irmão é Brother, Mãe é Mother.",
+    hint: "Filha dos seus pais."
+  },
+  {
+    id: 'e12', level: 'easy',
+    text: "Qual é a cor do Sol (Sun)?",
+    options: ["Blue", "Green", "Yellow", "Purple"],
+    correctIndex: 2,
+    explanation: "O sol é 'Yellow' (Amarelo).",
+    hint: "A cor de uma banana madura."
+  },
+  {
+    id: 'e13', level: 'easy',
+    text: "Traduza: 'I like to eat pizza'.",
+    options: ["Eu odeio pizza", "Eu gosto de comer pizza", "Eu faço pizza", "Eu compro pizza"],
+    correctIndex: 1,
+    explanation: "'Like' é gostar e 'Eat' é comer.",
+    hint: "Expressa uma preferência alimentar."
+  },
+  {
+    id: 'e14', level: 'easy',
+    text: "O que é uma 'Table'?",
+    options: ["Cadeira", "Mesa", "Janela", "Porta"],
+    correctIndex: 1,
+    explanation: "'Table' é Mesa. Cadeira é Chair.",
+    hint: "Onde colocamos o prato para comer."
+  },
+  {
+    id: 'e15', level: 'easy',
+    text: "Qual o plural de 'Car'?",
+    options: ["Cars", "Cares", "Car", "Carves"],
+    correctIndex: 0,
+    explanation: "A maioria dos substantivos em inglês recebe apenas 'S' no plural.",
+    hint: "Basta adicionar uma letra no final."
+  },
+  {
+    id: 'e16', level: 'easy',
+    text: "Como se diz 'Tchau'?",
+    options: ["Hello", "Hi", "Goodbye", "Welcome"],
+    correctIndex: 2,
+    explanation: "'Goodbye' ou 'Bye' é usado para despedidas.",
+    hint: "O oposto de Hello."
+  },
+  {
+    id: 'e17', level: 'easy',
+    text: "O que significa 'Apple'?",
+    options: ["Laranja", "Banana", "Maçã", "Uva"],
+    correctIndex: 2,
+    explanation: "'Apple' é Maçã.",
+    hint: "A fruta da Branca de Neve."
+  },
+  {
+    id: 'e18', level: 'easy',
+    text: "Complete: 'She ___ my friend.'",
+    options: ["are", "am", "is", "be"],
+    correctIndex: 2,
+    explanation: "Para 'She' (Ela), usamos 'is'.",
+    hint: "Conjugação do verbo to be para singular (ele/ela)."
+  },
 
-  // MEDIUM (Nível 4-6)
+  // --- MEDIUM (Nível 4-6) ---
   {
     id: 'm1', level: 'medium',
     text: "Qual é o passado do verbo 'Go'?",
@@ -185,8 +265,72 @@ const QUESTION_BANK: Question[] = [
     explanation: "'Push' é Empurrar. Puxar é 'Pull'. É um falso cognato visual.",
     hint: "O contrário de Puxar. Você faz força para frente."
   },
+  {
+    id: 'm9', level: 'medium',
+    text: "Qual é o passado de 'Buy' (Comprar)?",
+    options: ["Buyed", "Bought", "Brought", "Buying"],
+    correctIndex: 1,
+    explanation: "'Buy' é irregular, o passado é 'Bought'. 'Brought' é o passado de Bring.",
+    hint: "Rima com 'Thought'."
+  },
+  {
+    id: 'm10', level: 'medium',
+    text: "O que significa 'Lunch'?",
+    options: ["Lanche", "Almoço", "Jantar", "Ceia"],
+    correctIndex: 1,
+    explanation: "'Lunch' é Almoço. Lanche é 'Snack'. Falso cognato famoso!",
+    hint: "Refeição do meio do dia."
+  },
+  {
+    id: 'm11', level: 'medium',
+    text: "Qual o comparativo de 'Good'?",
+    options: ["Gooder", "More good", "Better", "Best"],
+    correctIndex: 2,
+    explanation: "Good é irregular. Comparativo: Better. Superlativo: Best.",
+    hint: "Significa 'Melhor' do que algo."
+  },
+  {
+    id: 'm12', level: 'medium',
+    text: "O que significa 'Fabric'?",
+    options: ["Fábrica", "Tecido", "Fabricar", "Tijolo"],
+    correctIndex: 1,
+    explanation: "'Fabric' é Tecido. Fábrica é 'Factory'.",
+    hint: "Material usado para fazer roupas."
+  },
+  {
+    id: 'm13', level: 'medium',
+    text: "Complete: 'I will ___ travel tomorrow.'",
+    options: ["probably", "yesterday", "last week", "ago"],
+    correctIndex: 0,
+    explanation: "Com futuro (will), usamos advérbios como probably. Os outros indicam passado.",
+    hint: "Indica uma possibilidade futura."
+  },
+  {
+    id: 'm14', level: 'medium',
+    text: "O que é um 'Mayor'?",
+    options: ["Maior", "Prefeito", "Melhor", "Major"],
+    correctIndex: 1,
+    explanation: "'Mayor' é o chefe do executivo municipal (Prefeito). Maior é 'Bigger/Major'.",
+    hint: "Político que cuida da cidade."
+  },
+  {
+    id: 'm15', level: 'medium',
+    text: "Traduza: 'I have a cold.'",
+    options: ["Estou com frio", "Tenho um resfriado", "Eu tenho gelo", "Eu sou frio"],
+    correctIndex: 1,
+    explanation: "Ter 'a cold' é estar resfriado/gripado. Estar com frio é 'I am cold'.",
+    hint: "Doença comum no inverno, nariz escorrendo."
+  },
+  {
+    id: 'm16', level: 'medium',
+    text: "Qual preposição completa: 'I was born ___ May.'",
+    options: ["on", "at", "in", "to"],
+    correctIndex: 2,
+    explanation: "Para meses (sem o dia específico), usamos 'in'. Ex: in May, in 1990.",
+    hint: "Usado para períodos longos como meses e anos."
+  },
 
-  // HARD (Nível 7-8)
+  // --- HARD (Nível 7-8) ---
   {
     id: 'h1', level: 'hard',
     text: "Qual frase está no 'Present Perfect'?",
@@ -235,8 +379,80 @@ const QUESTION_BANK: Question[] = [
     explanation: "A voz passiva no passado usa Was/Were + Particípio (Was made).",
     hint: "O bolo sofreu a ação de ser feito."
   },
+  {
+    id: 'h7', level: 'hard',
+    text: "O que significa 'Eventually'?",
+    options: ["Eventualmente", "Finalmente", "Talvez", "De vez em quando"],
+    correctIndex: 1,
+    explanation: "'Eventually' significa 'No final das contas' ou 'Finalmente'. Eventualmente é 'Occasionally'.",
+    hint: "Acontece no final de um processo longo."
+  },
+  {
+    id: 'h8', level: 'hard',
+    text: "Qual a diferença entre 'Say' e 'Tell'?",
+    options: ["Nenhuma", "Tell precisa de um receptor (Tell someone)", "Say precisa de um receptor", "Tell é apenas para mentiras"],
+    correctIndex: 1,
+    explanation: "Geralmente 'Tell' é usado quando dizemos PARA ALGUÉM (Tell me, Tell him). Say é mais geral.",
+    hint: "Tell me a story (Conte-me)."
+  },
+  {
+    id: 'h9', level: 'hard',
+    text: "O que significa 'Run out of'?",
+    options: ["Correr fora", "Expulsar", "Ficar sem", "Fugir de"],
+    correctIndex: 2,
+    explanation: "'Run out of' significa esgotar o estoque de algo (Ex: Run out of gas).",
+    hint: "Quando o leite acaba na geladeira."
+  },
+  {
+    id: 'h10', level: 'hard',
+    text: "Traduza: 'I am used to waking up early.'",
+    options: ["Eu costumava acordar cedo", "Eu estou acostumado a acordar cedo", "Eu usei para acordar", "Eu acordo cedo"],
+    correctIndex: 1,
+    explanation: "'Be used to' + ING significa Estar Acostumado. 'Used to' + Verbo Base significa Costumava (passado).",
+    hint: "É um hábito atual, não algo que parou de acontecer."
+  },
+  {
+    id: 'h11', level: 'hard',
+    text: "O que significa 'Exquisite'?",
+    options: ["Esquisito", "Feio", "Refinado/Belo", "Exausto"],
+    correctIndex: 2,
+    explanation: "'Exquisite' significa algo muito belo, refinado ou delicado. Esquisito é 'Weird' ou 'Strange'.",
+    hint: "Usado para descrever joias ou comida chique."
+  },
+  {
+    id: 'h12', level: 'hard',
+    text: "Complete: 'You ___ smoke here. It is forbidden.'",
+    options: ["don't have to", "mustn't", "shouldn't", "couldn't"],
+    correctIndex: 1,
+    explanation: "'Mustn't' indica proibição. 'Don't have to' indica falta de necessidade.",
+    hint: "É uma regra estrita, proibição total."
+  },
+  {
+    id: 'h13', level: 'hard',
+    text: "O que é 'Application' num contexto de emprego?",
+    options: ["Aplicativo", "Aplicação financeira", "Candidatura/Inscrição", "Esforço"],
+    correctIndex: 2,
+    explanation: "'Job Application' é a candidatura a uma vaga. Aplicativo de celular é 'App'.",
+    hint: "O formulário que você preenche para tentar um emprego."
+  },
+  {
+    id: 'h14', level: 'hard',
+    text: "Qual é o oposto de 'Lend' (Emprestar)?",
+    options: ["Give", "Borrow", "Take", "Send"],
+    correctIndex: 1,
+    explanation: "Lend é quando você dá emprestado. Borrow é quando você pega emprestado.",
+    hint: "Pegar algo com a intenção de devolver."
+  },
+  {
+    id: 'h15', level: 'hard',
+    text: "O que significa 'Look forward to'?",
+    options: ["Olhar para frente", "Estar ansioso/animado por", "Procurar", "Esquecer"],
+    correctIndex: 1,
+    explanation: "'Look forward to' significa esperar ansiosamente por algo no futuro.",
+    hint: "Comum no final de emails: 'I look forward to hearing from you'."
+  },
 
-  // EXPERT (Nível 9-10)
+  // --- EXPERT (Nível 9-10) ---
   {
     id: 'x1', level: 'expert',
     text: "O que significa a expressão 'Piece of cake'?",
@@ -276,6 +492,86 @@ const QUESTION_BANK: Question[] = [
     correctIndex: 1,
     explanation: "Geralmente, 'Make' é para criar algo novo (bolo, erro), 'Do' é para tarefas/atividades (trabalho, exercícios).",
     hint: "Um foca no produto final, o outro na ação em si."
+  },
+  {
+    id: 'x6', level: 'expert',
+    text: "O que significa 'Once in a blue moon'?",
+    options: ["Toda noite", "Raramente", "Sempre", "Nunca"],
+    correctIndex: 1,
+    explanation: "Expressão para algo que acontece muito raramente.",
+    hint: "Pense em quão rara é uma lua azul."
+  },
+  {
+    id: 'x7', level: 'expert',
+    text: "O que significa 'Bite the bullet'?",
+    options: ["Morder a bala", "Encarar uma situação difícil", "Comer rápido", "Desistir"],
+    correctIndex: 1,
+    explanation: "Significa aceitar algo difícil ou desagradável que é inevitável.",
+    hint: "Fazer algo doloroso com coragem."
+  },
+  {
+    id: 'x8', level: 'expert',
+    text: "O que significa 'Hit the sack'?",
+    options: ["Bater no saco", "Ir dormir", "Ser demitido", "Começar a trabalhar"],
+    correctIndex: 1,
+    explanation: "'Hit the sack' (ou hay) é uma gíria para ir para a cama dormir.",
+    hint: "Quando você está muito cansado à noite."
+  },
+  {
+    id: 'x9', level: 'expert',
+    text: "O que significa 'Cost an arm and a leg'?",
+    options: ["Custa um braço e uma perna", "É muito barato", "É muito caro", "É de graça"],
+    correctIndex: 2,
+    explanation: "Expressão para dizer que algo é excessivamente caro.",
+    hint: "Preço exorbitante, custa partes do corpo."
+  },
+  {
+    id: 'x10', level: 'expert',
+    text: "Traduza: 'He is sitting on the fence.'",
+    options: ["Ele está sentado na cerca", "Ele está indeciso", "Ele está protegendo a casa", "Ele caiu"],
+    correctIndex: 1,
+    explanation: "'Sit on the fence' significa não tomar partido ou estar indeciso.",
+    hint: "Não escolheu nem o lado esquerdo nem o direito."
+  },
+  {
+    id: 'x11', level: 'expert',
+    text: "O que significa 'Under the weather'?",
+    options: ["Debaixo do tempo", "Sentindo-se mal/doente", "Na chuva", "Com pressa"],
+    correctIndex: 1,
+    explanation: "Estar 'Under the weather' significa não estar se sentindo bem de saúde.",
+    hint: "Quando você está gripado ou enjoado."
+  },
+  {
+    id: 'x12', level: 'expert',
+    text: "O que significa 'Barking up the wrong tree'?",
+    options: ["Latindo na árvore", "Acusando a pessoa errada", "Caçando animais", "Gritando alto"],
+    correctIndex: 1,
+    explanation: "Significa seguir uma pista falsa ou acusar a pessoa errada.",
+    hint: "O cachorro está latindo para a árvore onde o gato NÃO está."
+  },
+  {
+    id: 'x13', level: 'expert',
+    text: "Complete: 'Had I known, I ___ gone.'",
+    options: ["would have", "will have", "would", "had"],
+    correctIndex: 0,
+    explanation: "Terceira condicional invertida: 'Had I known' = 'If I had known'. A consequência usa 'would have'.",
+    hint: "Estrutura avançada de condicional passada."
+  },
+  {
+    id: 'x14', level: 'expert',
+    text: "O que significa 'Spill the beans'?",
+    options: ["Derrubar feijão", "Cozinhar", "Revelar um segredo", "Mentir"],
+    correctIndex: 2,
+    explanation: "'Spill the beans' significa contar um segredo (dar com a língua nos dentes).",
+    hint: "Deixar a verdade escapar."
+  },
+  {
+    id: 'x15', level: 'expert',
+    text: "O que significa 'Cold turkey'?",
+    options: ["Peru frio", "Parar um vício abruptamente", "Comida de natal", "Uma pessoa fria"],
+    correctIndex: 1,
+    explanation: "'Go cold turkey' significa parar de usar algo (vício) de uma vez só, sem diminuir aos poucos.",
+    hint: "Parar de fumar de um dia para o outro."
   }
 ];
 
