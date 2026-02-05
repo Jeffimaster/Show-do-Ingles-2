@@ -18,7 +18,8 @@ import {
   Coins,
   User,
   ListOrdered,
-  WifiOff
+  WifiOff,
+  AlertTriangle
 } from "lucide-react";
 
 // --- Types ---
@@ -74,34 +75,52 @@ const getDifficultyParams = (index: number) => {
 };
 
 const generateQuestion = async (index: number): Promise<Question> => {
+  // Pre-checks
+  if (!process.env.API_KEY) {
+    throw new Error("Erro de Configuração: API_KEY não encontrada.");
+  }
+  if (!navigator.onLine) {
+    throw new Error("Sem conexão com a internet. Verifique seu Wi-Fi ou dados móveis.");
+  }
+
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const { level, topic } = getDifficultyParams(index);
   
-  const prompt = `ATENÇÃO: Você é o gerador de perguntas para o 'Show do Milhão'.
-  Nível Exigido: ${level}. (Obrigatório respeitar a dificuldade).
-  Tema: ${topic}.
+  const systemInstruction = `Você é um gerador de perguntas para o 'Show do Milhão' (Edição Inglês).
+  Seu objetivo é testar o conhecimento de inglês de falantes de português.
   
-  Instruções de Dificuldade:
-  - Se Nível for Avançado/Fluente, use vocabulário complexo, phrasal verbs raros ou regras gramaticais obscuras. NÃO faça perguntas fáceis para estes níveis.
-  - Se Nível for Básico, mantenha simples e direto.
-  
-  Retorne um objeto JSON válido com: text, options (4 strings), correctIndex (0-3), explanation.`;
+  Regras:
+  1. A pergunta deve ser clara.
+  2. As opções devem ser 4.
+  3. A explicação deve ser educativa.
+  4. Respeite rigorosamente o nível de dificuldade solicitado.
+  5. Retorne APENAS JSON válido.`;
 
-  // Try 3 times before giving up
-  for (let attempt = 0; attempt < 3; attempt++) {
+  const prompt = `Gere uma pergunta de múltipla escolha.
+  Nível: ${level}
+  Tópico: ${topic}
+  
+  Se o nível for Avançado/Fluente, use vocabulário complexo ou gramática avançada.`;
+
+  // Increased retries for mobile stability (4 attempts)
+  // Backoff: 1s, 2s, 3s, 4s
+  const MAX_ATTEMPTS = 4;
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt,
         config: {
+          systemInstruction: systemInstruction,
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
             properties: {
-              text: { type: Type.STRING, description: "A pergunta." },
-              options: { type: Type.ARRAY, items: { type: Type.STRING } },
-              correctIndex: { type: Type.INTEGER },
-              explanation: { type: Type.STRING }
+              text: { type: Type.STRING, description: "A pergunta em português ou inglês (contextualizada)" },
+              options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 opções de resposta" },
+              correctIndex: { type: Type.INTEGER, description: "Índice da correta (0-3)" },
+              explanation: { type: Type.STRING, description: "Por que a resposta está correta" }
             },
             required: ["text", "options", "correctIndex", "explanation"]
           }
@@ -109,35 +128,50 @@ const generateQuestion = async (index: number): Promise<Question> => {
       });
 
       if (response.text) {
-        // Robust JSON extraction
-        const text = response.text;
-        const start = text.indexOf('{');
-        const end = text.lastIndexOf('}');
+        // Robust JSON cleaning to handle potential markdown backticks
+        let cleanText = response.text.trim();
+        // Remove markdown code blocks if present
+        cleanText = cleanText.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
+        
+        const start = cleanText.indexOf('{');
+        const end = cleanText.lastIndexOf('}');
         
         if (start !== -1 && end !== -1) {
-          const jsonStr = text.substring(start, end + 1);
-          return JSON.parse(jsonStr) as Question;
+          const jsonStr = cleanText.substring(start, end + 1);
+          const data = JSON.parse(jsonStr) as Question;
+          
+          // Basic validation of the data
+          if (data.options && data.options.length === 4 && typeof data.correctIndex === 'number') {
+             return data;
+          }
         }
       }
-    } catch (e) {
-      console.warn(`Attempt ${attempt + 1} failed for question generation:`, e);
-      // Exponential backoff: 500ms, 1000ms, 1500ms...
-      await new Promise(res => setTimeout(res, 500 * (attempt + 1)));
+    } catch (e: any) {
+      console.warn(`Attempt ${attempt + 1} failed:`, e);
+      
+      // If it's the last attempt, don't wait, just let it fail
+      if (attempt < MAX_ATTEMPTS - 1) {
+        // Wait longer on mobile to allow connection to stabilize
+        await new Promise(res => setTimeout(res, 1000 * (attempt + 1)));
+      }
     }
   }
 
-  // If we get here, all retries failed. Throw error to UI.
-  throw new Error("Falha na conexão com a IA. Tente novamente.");
+  // If we get here, all retries failed.
+  throw new Error("Instabilidade na conexão com a IA. Tente novamente.");
 };
 
 const getAiHelp = async (question: Question): Promise<string> => {
+  if (!process.env.API_KEY || !navigator.onLine) return "Sem conexão para pedir ajuda!";
+
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Estou em um game show. Pergunta: "${question.text}". Opções: ${question.options.join(', ')}. Dê uma dica curta, engraçada e útil sem dar a resposta direta.`,
+      contents: `Jogo de perguntas. Pergunta: "${question.text}". Opções: ${question.options.join(', ')}. Resposta correta índice: ${question.correctIndex}.
+      Dê uma dica curta e divertida para ajudar o jogador a chegar na resposta, sem dar a resposta explicitamente.`,
     });
-    return response.text || "Hmm, essa é difícil até para mim!";
+    return response.text || "Pense bem no contexto da frase!";
   } catch (e) {
     console.error("AI Help failed", e);
     return "Minha conexão telepática falhou! Confie no seu instinto.";
@@ -159,7 +193,7 @@ const Button = ({
   disabled?: boolean,
   className?: string
 }) => {
-  const baseStyles = "relative overflow-hidden px-6 py-4 rounded-2xl font-bold transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-3 shadow-xl backdrop-blur-sm group";
+  const baseStyles = "relative overflow-hidden px-6 py-4 rounded-2xl font-bold transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-3 shadow-xl backdrop-blur-sm group select-none touch-manipulation";
   
   const variants = {
     primary: "bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-500 hover:to-indigo-500 shadow-indigo-500/30 border border-white/10",
@@ -186,7 +220,7 @@ const Button = ({
 const GameLogo = () => (
   <svg 
     viewBox="0 0 600 300" 
-    className="w-full max-w-[400px] drop-shadow-2xl animate-in zoom-in duration-700 mx-auto"
+    className="w-full max-w-[320px] sm:max-w-[400px] drop-shadow-2xl animate-in zoom-in duration-700 mx-auto"
     xmlns="http://www.w3.org/2000/svg"
   >
     <defs>
@@ -284,7 +318,7 @@ const App = () => {
     }
   }, []);
 
-  // Pre-fetch Logic: Always try to ensure we have the NEXT question ready
+  // Pre-fetch Logic
   useEffect(() => {
     const prefetch = async () => {
       // Only fetch if playing, not full, and next question doesn't exist yet
@@ -295,8 +329,8 @@ const App = () => {
           const q = await generateQuestion(nextIndex);
           setQuestions(prev => [...prev, q]);
         } catch (e) {
-          console.error("Falha no pre-fetch da próxima questão", e);
-          // Retry silently or let the user hit the loading state later
+          console.error("Falha silenciosa no pre-fetch:", e);
+          // Don't show error here, wait until user actually needs the question
         } finally {
           setIsFetchingNext(false);
         }
@@ -331,9 +365,14 @@ const App = () => {
 
     setGameState('LOADING');
     setErrorMsg(null);
-    setQuestions([]); // Limpa perguntas antigas
+    setQuestions([]);
     
     try {
+      // Check online status before starting
+      if (!navigator.onLine) {
+         throw new Error("Você está offline. Conecte-se à internet.");
+      }
+
       // Gera apenas a PRIMEIRA pergunta para começar rápido
       const firstQ = await generateQuestion(0);
       setQuestions([firstQ]);
@@ -342,10 +381,9 @@ const App = () => {
       setHiddenOptions([]);
       setAiTip(null);
       setGameState('PLAYING');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      // Removed Fallback - Show error instead
-      setErrorMsg("Não foi possível conectar à IA. Verifique sua conexão e tente novamente.");
+      setErrorMsg(err.message || "Erro de conexão. Tente novamente.");
       setGameState('START');
     }
   };
@@ -403,7 +441,6 @@ const App = () => {
     setAiTip(null);
 
     try {
-      // Gera nova pergunta do mesmo nível de dificuldade para substituir a atual
       const newQuestion = await generateQuestion(currentQIndex);
       
       setQuestions(prev => {
@@ -418,6 +455,7 @@ const App = () => {
       
     } catch (error) {
       console.error("Erro ao pular pergunta:", error);
+      // Optional: Show toast or error for skip fail
     } finally {
       setIsSkipping(false);
     }
@@ -449,7 +487,6 @@ const App = () => {
           {/* Main Card */}
           <div className="flex-1 flex flex-col items-center text-center backdrop-blur-3xl bg-white/5 p-8 rounded-3xl border border-white/10 shadow-2xl">
             
-            {/* Logo Custom Component - Replaces broken Image */}
             <div className="relative mb-8 group w-full flex justify-center">
               <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full opacity-50 group-hover:opacity-80 transition-opacity duration-500"></div>
               <GameLogo />
@@ -477,9 +514,9 @@ const App = () => {
             </div>
 
             {errorMsg && (
-              <div className="bg-red-500/10 text-red-200 p-3 rounded-xl mt-4 w-full border border-red-500/20 text-sm flex items-center justify-center gap-2">
-                <WifiOff size={16} />
-                {errorMsg}
+              <div className="bg-red-500/10 text-red-200 p-4 rounded-xl mt-4 w-full border border-red-500/20 text-sm flex items-center justify-center gap-3 animate-in fade-in slide-in-from-top-2">
+                <AlertTriangle size={20} className="shrink-0" />
+                <span className="text-left font-medium">{errorMsg}</span>
               </div>
             )}
           </div>
@@ -537,8 +574,11 @@ const App = () => {
             <div className="absolute inset-0 bg-violet-500 blur-xl opacity-20"></div>
             <Loader2 size={64} className="animate-spin text-violet-400 mb-6" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Preparando o Palco</h2>
-          <p className="text-slate-400 animate-pulse">Olá, <span className="text-indigo-400 font-bold">{playerName}</span>! Boa sorte.</p>
+          <h2 className="text-2xl font-bold text-white mb-2">Conectando à IA...</h2>
+          <p className="text-slate-400 animate-pulse text-center px-4">
+             Criando perguntas exclusivas para <span className="text-indigo-400 font-bold">{playerName}</span>.<br/>
+             <span className="text-xs opacity-70">Isso pode levar alguns segundos dependendo da conexão.</span>
+          </p>
         </div>
       </div>
     );
@@ -672,7 +712,7 @@ const App = () => {
              <HelpCircle size={100} />
            </div>
 
-           {/* Level Badge (Without source icon) */}
+           {/* Level Badge */}
            <div className="flex items-center gap-2 mb-4">
              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
                {currentQIndex < 3 ? 'Nível Básico' : currentQIndex < 6 ? 'Nível Médio' : currentQIndex < 9 ? 'Nível Difícil' : 'Nível Especialista'}
@@ -717,7 +757,7 @@ const App = () => {
                 onClick={() => !isFeedback && handleAnswer(idx)}
                 disabled={isFeedback || isSkipping}
                 className={`
-                  w-full text-left p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex items-center justify-between group relative overflow-hidden
+                  w-full text-left p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex items-center justify-between group relative overflow-hidden select-none touch-manipulation
                   ${variant === 'secondary' 
                     ? 'bg-slate-800/60 border-white/5 hover:bg-slate-700/80 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10' 
                     : ''}
@@ -739,7 +779,7 @@ const App = () => {
 
                 <div className="flex items-center gap-5 relative z-10">
                   <span className={`
-                    w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold border transition-colors
+                    w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold border transition-colors shrink-0
                     ${variant === 'secondary' ? 'bg-slate-900 border-slate-700 text-slate-400 group-hover:border-indigo-400 group-hover:text-indigo-300' : 'bg-black/20 border-white/20 text-white'}
                   `}>
                     {String.fromCharCode(65 + idx)}
@@ -747,7 +787,7 @@ const App = () => {
                   <span className="text-lg sm:text-xl font-medium">{option}</span>
                 </div>
                 
-                <div className="relative z-10">
+                <div className="relative z-10 shrink-0 ml-2">
                   {variant === 'correct' && <CheckCircle2 className="text-emerald-400 animate-in zoom-in duration-300" size={24} />}
                   {variant === 'wrong' && <XCircle className="text-red-400 animate-in zoom-in duration-300" size={24} />}
                 </div>
@@ -819,7 +859,7 @@ const LifelineButton = ({
     onClick={onClick}
     disabled={!active}
     className={`
-      flex flex-col items-center justify-center py-2 px-4 rounded-xl min-w-[80px] transition-all duration-300 relative group overflow-hidden
+      flex flex-col items-center justify-center py-2 px-4 rounded-xl min-w-[80px] transition-all duration-300 relative group overflow-hidden touch-manipulation
       ${active 
         ? 'bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/20 border border-white/5' 
         : 'bg-slate-900 text-slate-700 cursor-not-allowed border border-transparent'}
