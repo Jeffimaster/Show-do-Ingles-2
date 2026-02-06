@@ -55,524 +55,147 @@ const PRIZE_LADDER = [
 
 const QUESTION_BANK: Question[] = [
   // --- EASY (Nível 1-3) ---
-  {
-    id: 'e1', level: 'easy',
-    text: "Como se diz 'Vermelho' em inglês?",
-    options: ["Blue", "Red", "Green", "Yellow"],
-    correctIndex: 1,
-    explanation: "'Red' é a tradução direta de vermelho. Blue é azul, Green é verde e Yellow é amarelo.",
-    hint: "É a cor do sangue e do morango."
-  },
-  {
-    id: 'e2', level: 'easy',
-    text: "Qual é a tradução de 'Dog'?",
-    options: ["Gato", "Pássaro", "Cachorro", "Peixe"],
-    correctIndex: 2,
-    explanation: "'Dog' significa cachorro. Gato é 'Cat', Pássaro é 'Bird' e Peixe é 'Fish'.",
-    hint: "É conhecido como o melhor amigo do homem."
-  },
-  {
-    id: 'e3', level: 'easy',
-    text: "Complete a frase: 'I ___ happy today.'",
-    options: ["is", "are", "am", "be"],
-    correctIndex: 2,
-    explanation: "O verbo 'to be' conjugado para a primeira pessoa (I) é 'am'.",
-    hint: "Conjugação do verbo to be para 'Eu' (I)."
-  },
-  {
-    id: 'e4', level: 'easy',
-    text: "Como se diz 'Obrigado' em inglês?",
-    options: ["Please", "Sorry", "Excuse me", "Thank you"],
-    correctIndex: 3,
-    explanation: "'Thank you' é obrigado. Please é por favor, Sorry é desculpe.",
-    hint: "Você diz isso quando alguém faz um favor para você."
-  },
-  {
-    id: 'e5', level: 'easy',
-    text: "Qual destes é um dia da semana?",
-    options: ["January", "Monday", "Summer", "Morning"],
-    correctIndex: 1,
-    explanation: "'Monday' (Segunda-feira) é um dia da semana. January é mês, Summer é estação.",
-    hint: "Começa com M e é o primeiro dia útil da semana."
-  },
-  {
-    id: 'e6', level: 'easy',
-    text: "O que significa 'Book'?",
-    options: ["Mesa", "Cadeira", "Livro", "Caneta"],
-    correctIndex: 2,
-    explanation: "'Book' é livro. Mesa é table, cadeira é chair.",
-    hint: "Você usa para ler histórias ou estudar."
-  },
-  {
-    id: 'e7', level: 'easy',
-    text: "Qual é o oposto de 'Big'?",
-    options: ["Small", "Large", "Huge", "Tall"],
-    correctIndex: 0,
-    explanation: "'Small' (Pequeno) é o oposto de 'Big' (Grande).",
-    hint: "Pense em algo minúsculo, pequeno."
-  },
-  {
-    id: 'e8', level: 'easy',
-    text: "Como se diz 'Bom dia'?",
-    options: ["Good night", "Good afternoon", "Good morning", "Goodbye"],
-    correctIndex: 2,
-    explanation: "'Good morning' se usa pela manhã.",
-    hint: "A saudação que usamos quando o sol nasce."
-  },
-  {
-    id: 'e9', level: 'easy',
-    text: "Qual é a tradução de 'Water'?",
-    options: ["Leite", "Suco", "Água", "Refrigerante"],
-    correctIndex: 2,
-    explanation: "'Water' significa água. Leite é Milk, Suco é Juice.",
-    hint: "É essencial para a vida e bebemos quando temos sede."
-  },
-  {
-    id: 'e10', level: 'easy',
-    text: "Como se escreve o número 12 em inglês?",
-    options: ["Ten", "Twelve", "Twenty", "Two"],
-    correctIndex: 1,
-    explanation: "12 é 'Twelve'. Ten é 10, Twenty é 20, Two é 2.",
-    hint: "Vem depois do Eleven."
-  },
-  {
-    id: 'e11', level: 'easy',
-    text: "O que significa 'Sister'?",
-    options: ["Irmão", "Mãe", "Tia", "Irmã"],
-    correctIndex: 3,
-    explanation: "'Sister' é Irmã. Irmão é Brother, Mãe é Mother.",
-    hint: "Filha dos seus pais."
-  },
-  {
-    id: 'e12', level: 'easy',
-    text: "Qual é a cor do Sol (Sun)?",
-    options: ["Blue", "Green", "Yellow", "Purple"],
-    correctIndex: 2,
-    explanation: "O sol é 'Yellow' (Amarelo).",
-    hint: "A cor de uma banana madura."
-  },
-  {
-    id: 'e13', level: 'easy',
-    text: "Traduza: 'I like to eat pizza'.",
-    options: ["Eu odeio pizza", "Eu gosto de comer pizza", "Eu faço pizza", "Eu compro pizza"],
-    correctIndex: 1,
-    explanation: "'Like' é gostar e 'Eat' é comer.",
-    hint: "Expressa uma preferência alimentar."
-  },
-  {
-    id: 'e14', level: 'easy',
-    text: "O que é uma 'Table'?",
-    options: ["Cadeira", "Mesa", "Janela", "Porta"],
-    correctIndex: 1,
-    explanation: "'Table' é Mesa. Cadeira é Chair.",
-    hint: "Onde colocamos o prato para comer."
-  },
-  {
-    id: 'e15', level: 'easy',
-    text: "Qual o plural de 'Car'?",
-    options: ["Cars", "Cares", "Car", "Carves"],
-    correctIndex: 0,
-    explanation: "A maioria dos substantivos em inglês recebe apenas 'S' no plural.",
-    hint: "Basta adicionar uma letra no final."
-  },
-  {
-    id: 'e16', level: 'easy',
-    text: "Como se diz 'Tchau'?",
-    options: ["Hello", "Hi", "Goodbye", "Welcome"],
-    correctIndex: 2,
-    explanation: "'Goodbye' ou 'Bye' é usado para despedidas.",
-    hint: "O oposto de Hello."
-  },
-  {
-    id: 'e17', level: 'easy',
-    text: "O que significa 'Apple'?",
-    options: ["Laranja", "Banana", "Maçã", "Uva"],
-    correctIndex: 2,
-    explanation: "'Apple' é Maçã.",
-    hint: "A fruta da Branca de Neve."
-  },
-  {
-    id: 'e18', level: 'easy',
-    text: "Complete: 'She ___ my friend.'",
-    options: ["are", "am", "is", "be"],
-    correctIndex: 2,
-    explanation: "Para 'She' (Ela), usamos 'is'.",
-    hint: "Conjugação do verbo to be para singular (ele/ela)."
-  },
+  { id: 'e1', level: 'easy', text: "Como se diz 'Vermelho' em inglês?", options: ["Blue", "Red", "Green", "Yellow"], correctIndex: 1, explanation: "'Red' é a tradução direta de vermelho.", hint: "É a cor do sangue e do morango." },
+  { id: 'e2', level: 'easy', text: "Qual é a tradução de 'Dog'?", options: ["Gato", "Pássaro", "Cachorro", "Peixe"], correctIndex: 2, explanation: "'Dog' significa cachorro.", hint: "É conhecido como o melhor amigo do homem." },
+  { id: 'e3', level: 'easy', text: "Complete: 'I ___ happy today.'", options: ["is", "are", "am", "be"], correctIndex: 2, explanation: "O verbo 'to be' conjugado para a primeira pessoa (I) é 'am'.", hint: "Conjugação do verbo to be para 'Eu'." },
+  { id: 'e4', level: 'easy', text: "Como se diz 'Obrigado'?", options: ["Please", "Sorry", "Excuse me", "Thank you"], correctIndex: 3, explanation: "'Thank you' é obrigado.", hint: "Você diz isso quando alguém faz um favor para você." },
+  { id: 'e5', level: 'easy', text: "Qual destes é um dia da semana?", options: ["January", "Monday", "Summer", "Morning"], correctIndex: 1, explanation: "'Monday' é Segunda-feira.", hint: "Começa com M e é o primeiro dia útil." },
+  { id: 'e6', level: 'easy', text: "O que significa 'Book'?", options: ["Mesa", "Cadeira", "Livro", "Caneta"], correctIndex: 2, explanation: "'Book' é livro.", hint: "Você usa para ler histórias ou estudar." },
+  { id: 'e7', level: 'easy', text: "Qual é o oposto de 'Big'?", options: ["Small", "Large", "Huge", "Tall"], correctIndex: 0, explanation: "'Small' (Pequeno) é o oposto de 'Big'.", hint: "Pense em algo minúsculo." },
+  { id: 'e8', level: 'easy', text: "Como se diz 'Bom dia'?", options: ["Good night", "Good afternoon", "Good morning", "Goodbye"], correctIndex: 2, explanation: "'Good morning' se usa pela manhã.", hint: "A saudação quando o sol nasce." },
+  { id: 'e9', level: 'easy', text: "Qual é a tradução de 'Water'?", options: ["Leite", "Suco", "Água", "Refrigerante"], correctIndex: 2, explanation: "'Water' significa água.", hint: "Essencial para a vida, bebemos quando temos sede." },
+  { id: 'e10', level: 'easy', text: "Como se escreve o número 12?", options: ["Ten", "Twelve", "Twenty", "Two"], correctIndex: 1, explanation: "12 é 'Twelve'.", hint: "Vem depois do Eleven." },
+  { id: 'e11', level: 'easy', text: "O que significa 'Sister'?", options: ["Irmão", "Mãe", "Tia", "Irmã"], correctIndex: 3, explanation: "'Sister' é Irmã.", hint: "Filha dos seus pais." },
+  { id: 'e12', level: 'easy', text: "Qual é a cor do Sol (Sun)?", options: ["Blue", "Green", "Yellow", "Purple"], correctIndex: 2, explanation: "O sol é 'Yellow' (Amarelo).", hint: "A cor de uma banana madura." },
+  { id: 'e13', level: 'easy', text: "Traduza: 'I like to eat pizza'.", options: ["Eu odeio pizza", "Eu gosto de comer pizza", "Eu faço pizza", "Eu compro pizza"], correctIndex: 1, explanation: "'Like' é gostar e 'Eat' é comer.", hint: "Expressa uma preferência alimentar." },
+  { id: 'e14', level: 'easy', text: "O que é uma 'Table'?", options: ["Cadeira", "Mesa", "Janela", "Porta"], correctIndex: 1, explanation: "'Table' é Mesa.", hint: "Onde colocamos o prato para comer." },
+  { id: 'e15', level: 'easy', text: "Qual o plural de 'Car'?", options: ["Cars", "Cares", "Car", "Carves"], correctIndex: 0, explanation: "Adiciona-se 'S' no plural regular.", hint: "Basta adicionar uma letra no final." },
+  { id: 'e16', level: 'easy', text: "Como se diz 'Tchau'?", options: ["Hello", "Hi", "Goodbye", "Welcome"], correctIndex: 2, explanation: "'Goodbye' é adeus/tchau.", hint: "O oposto de Hello." },
+  { id: 'e17', level: 'easy', text: "O que significa 'Apple'?", options: ["Laranja", "Banana", "Maçã", "Uva"], correctIndex: 2, explanation: "'Apple' é Maçã.", hint: "A fruta da Branca de Neve." },
+  { id: 'e18', level: 'easy', text: "Complete: 'She ___ my friend.'", options: ["are", "am", "is", "be"], correctIndex: 2, explanation: "Para 'She' usa-se 'is'.", hint: "Conjugação singular para ela." },
+  { id: 'e19', level: 'easy', text: "O que significa 'Cat'?", options: ["Cachorro", "Gato", "Pato", "Leão"], correctIndex: 1, explanation: "'Cat' significa Gato.", hint: "Animal que faz miau." },
+  { id: 'e20', level: 'easy', text: "Traduza: 'Blue'", options: ["Vermelho", "Azul", "Preto", "Branco"], correctIndex: 1, explanation: "'Blue' é Azul.", hint: "A cor do céu." },
+  { id: 'e21', level: 'easy', text: "Qual número é 'One'?", options: ["1", "2", "3", "4"], correctIndex: 0, explanation: "'One' é o número 1.", hint: "O primeiro número." },
+  { id: 'e22', level: 'easy', text: "O que significa 'Milk'?", options: ["Água", "Suco", "Leite", "Refrigerante"], correctIndex: 2, explanation: "'Milk' é Leite.", hint: "Bebida branca que vem da vaca." },
+  { id: 'e23', level: 'easy', text: "Como se diz 'Casa'?", options: ["House", "Mouse", "Horse", "Rose"], correctIndex: 0, explanation: "'House' é Casa.", hint: "Onde você mora." },
+  { id: 'e24', level: 'easy', text: "O que significa 'Boy'?", options: ["Menina", "Mulher", "Menino", "Homem"], correctIndex: 2, explanation: "'Boy' é Menino.", hint: "Oposto de Girl." },
+  { id: 'e25', level: 'easy', text: "Qual é a tradução de 'Night'?", options: ["Dia", "Tarde", "Noite", "Manhã"], correctIndex: 2, explanation: "'Night' é Noite.", hint: "Quando a lua aparece." },
+  { id: 'e26', level: 'easy', text: "O que significa 'Love'?", options: ["Ódio", "Amor", "Vida", "Paz"], correctIndex: 1, explanation: "'Love' é Amor.", hint: "Sentimento do coração." },
+  { id: 'e27', level: 'easy', text: "Como se diz 'Professor'?", options: ["Student", "Doctor", "Teacher", "Driver"], correctIndex: 2, explanation: "'Teacher' é Professor.", hint: "Pessoa que ensina na escola." },
+  { id: 'e28', level: 'easy', text: "O que é 'Fish'?", options: ["Carne", "Frango", "Peixe", "Salada"], correctIndex: 2, explanation: "'Fish' é Peixe.", hint: "Animal que nada na água." },
+  { id: 'e29', level: 'easy', text: "Traduza: 'Door'", options: ["Janela", "Paredes", "Porta", "Teto"], correctIndex: 2, explanation: "'Door' é Porta.", hint: "Você abre para entrar em casa." },
+  { id: 'e30', level: 'easy', text: "O que significa 'Happy'?", options: ["Triste", "Bravo", "Feliz", "Cansado"], correctIndex: 2, explanation: "'Happy' é Feliz.", hint: "Oposto de triste." },
+  { id: 'e31', level: 'easy', text: "Qual a cor 'Black'?", options: ["Branco", "Preto", "Cinza", "Marrom"], correctIndex: 1, explanation: "'Black' é Preto.", hint: "A cor da escuridão." },
+  { id: 'e32', level: 'easy', text: "O que significa 'Money'?", options: ["Comida", "Tempo", "Dinheiro", "Trabalho"], correctIndex: 2, explanation: "'Money' é Dinheiro.", hint: "Usado para comprar coisas." },
+  { id: 'e33', level: 'easy', text: "Como se diz 'Mãe'?", options: ["Father", "Sister", "Mother", "Brother"], correctIndex: 2, explanation: "'Mother' é Mãe.", hint: "A mulher que te deu à luz." },
+  { id: 'e34', level: 'easy', text: "O que é 'Pen'?", options: ["Lápis", "Caneta", "Borracha", "Caderno"], correctIndex: 1, explanation: "'Pen' é Caneta. Lápis é Pencil.", hint: "Usada para escrever com tinta." },
+  { id: 'e35', level: 'easy', text: "Traduza 'Bed'", options: ["Banheiro", "Cama", "Sofá", "Cadeira"], correctIndex: 1, explanation: "'Bed' é Cama.", hint: "Onde você dorme." },
+  { id: 'e36', level: 'easy', text: "O que significa 'Sun'?", options: ["Lua", "Estrela", "Sol", "Céu"], correctIndex: 2, explanation: "'Sun' é Sol.", hint: "Brilha no céu durante o dia." },
+  { id: 'e37', level: 'easy', text: "Como se diz 'Amigo'?", options: ["Enemy", "Friend", "Neighbor", "Boss"], correctIndex: 1, explanation: "'Friend' é Amigo.", hint: "Alguém que você gosta e confia." },
+  { id: 'e38', level: 'easy', text: "O que significa 'Cold'?", options: ["Quente", "Frio", "Morno", "Seco"], correctIndex: 1, explanation: "'Cold' é Frio.", hint: "Oposto de quente (Hot)." },
+  { id: 'e39', level: 'easy', text: "Qual a tradução de 'Tree'?", options: ["Flor", "Grama", "Árvore", "Folha"], correctIndex: 2, explanation: "'Tree' é Árvore.", hint: "Tem tronco e folhas." },
+  { id: 'e40', level: 'easy', text: "Complete: '___ name is John.'", options: ["I", "Me", "My", "Mine"], correctIndex: 2, explanation: "'My' é o possessivo 'Meu'.", hint: "Indica posse do nome." },
 
   // --- MEDIUM (Nível 4-6) ---
-  {
-    id: 'm1', level: 'medium',
-    text: "Qual é o passado do verbo 'Go'?",
-    options: ["Goed", "Gone", "Went", "Going"],
-    correctIndex: 2,
-    explanation: "'Go' é um verbo irregular. Seu passado simples é 'Went'.",
-    hint: "Não termina com 'ed' pois é irregular. Começa com W."
-  },
-  {
-    id: 'm2', level: 'medium',
-    text: "O que significa o falso cognato 'Parents'?",
-    options: ["Parentes", "Pais", "Parceiros", "Primos"],
-    correctIndex: 1,
-    explanation: "'Parents' significa Pais (pai e mãe). Parentes em geral são 'Relatives'.",
-    hint: "Refere-se apenas ao seu pai e sua mãe."
-  },
-  {
-    id: 'm3', level: 'medium',
-    text: "Escolha a preposição correta: 'The book is ___ the table.'",
-    options: ["in", "on", "at", "to"],
-    correctIndex: 1,
-    explanation: "Usamos 'on' quando algo está sobre uma superfície.",
-    hint: "Indica que o objeto está em cima da superfície."
-  },
-  {
-    id: 'm4', level: 'medium',
-    text: "Qual a tradução de 'Breakfast'?",
-    options: ["Pausa rápida", "Café da manhã", "Freio", "Jantar"],
-    correctIndex: 1,
-    explanation: "'Breakfast' é a primeira refeição do dia, o café da manhã.",
-    hint: "A refeição que você come de manhã cedo."
-  },
-  {
-    id: 'm5', level: 'medium',
-    text: "Qual frase está no 'Present Continuous'?",
-    options: ["I play soccer.", "I am playing soccer.", "I played soccer.", "I will play soccer."],
-    correctIndex: 1,
-    explanation: "O Present Continuous usa verbo to be + verbo com ING (am playing).",
-    hint: "Procure pela terminação -ING indicando uma ação agora."
-  },
-  {
-    id: 'm6', level: 'medium',
-    text: "O que significa 'Library'?",
-    options: ["Livraria", "Biblioteca", "Liberdade", "Laboratório"],
-    correctIndex: 1,
-    explanation: "'Library' é Biblioteca (onde se empresta livros). Livraria (loja) é 'Bookstore'.",
-    hint: "Lugar silencioso onde você estuda e pega livros emprestados."
-  },
-  {
-    id: 'm7', level: 'medium',
-    text: "Complete: 'She ___ speak English very well.'",
-    options: ["can", "cans", "to can", "canning"],
-    correctIndex: 0,
-    explanation: "O verbo modal 'Can' não muda na terceira pessoa (não ganha 's').",
-    hint: "Verbos modais não sofrem conjugação com S."
-  },
-  {
-    id: 'm8', level: 'medium',
-    text: "O que significa o verbo 'Push'?",
-    options: ["Puxar", "Empurrar", "Pular", "Pegar"],
-    correctIndex: 1,
-    explanation: "'Push' é Empurrar. Puxar é 'Pull'. É um falso cognato visual.",
-    hint: "O contrário de Puxar. Você faz força para frente."
-  },
-  {
-    id: 'm9', level: 'medium',
-    text: "Qual é o passado de 'Buy' (Comprar)?",
-    options: ["Buyed", "Bought", "Brought", "Buying"],
-    correctIndex: 1,
-    explanation: "'Buy' é irregular, o passado é 'Bought'. 'Brought' é o passado de Bring.",
-    hint: "Rima com 'Thought'."
-  },
-  {
-    id: 'm10', level: 'medium',
-    text: "O que significa 'Lunch'?",
-    options: ["Lanche", "Almoço", "Jantar", "Ceia"],
-    correctIndex: 1,
-    explanation: "'Lunch' é Almoço. Lanche é 'Snack'. Falso cognato famoso!",
-    hint: "Refeição do meio do dia."
-  },
-  {
-    id: 'm11', level: 'medium',
-    text: "Qual o comparativo de 'Good'?",
-    options: ["Gooder", "More good", "Better", "Best"],
-    correctIndex: 2,
-    explanation: "Good é irregular. Comparativo: Better. Superlativo: Best.",
-    hint: "Significa 'Melhor' do que algo."
-  },
-  {
-    id: 'm12', level: 'medium',
-    text: "O que significa 'Fabric'?",
-    options: ["Fábrica", "Tecido", "Fabricar", "Tijolo"],
-    correctIndex: 1,
-    explanation: "'Fabric' é Tecido. Fábrica é 'Factory'.",
-    hint: "Material usado para fazer roupas."
-  },
-  {
-    id: 'm13', level: 'medium',
-    text: "Complete: 'I will ___ travel tomorrow.'",
-    options: ["probably", "yesterday", "last week", "ago"],
-    correctIndex: 0,
-    explanation: "Com futuro (will), usamos advérbios como probably. Os outros indicam passado.",
-    hint: "Indica uma possibilidade futura."
-  },
-  {
-    id: 'm14', level: 'medium',
-    text: "O que é um 'Mayor'?",
-    options: ["Maior", "Prefeito", "Melhor", "Major"],
-    correctIndex: 1,
-    explanation: "'Mayor' é o chefe do executivo municipal (Prefeito). Maior é 'Bigger/Major'.",
-    hint: "Político que cuida da cidade."
-  },
-  {
-    id: 'm15', level: 'medium',
-    text: "Traduza: 'I have a cold.'",
-    options: ["Estou com frio", "Tenho um resfriado", "Eu tenho gelo", "Eu sou frio"],
-    correctIndex: 1,
-    explanation: "Ter 'a cold' é estar resfriado/gripado. Estar com frio é 'I am cold'.",
-    hint: "Doença comum no inverno, nariz escorrendo."
-  },
-  {
-    id: 'm16', level: 'medium',
-    text: "Qual preposição completa: 'I was born ___ May.'",
-    options: ["on", "at", "in", "to"],
-    correctIndex: 2,
-    explanation: "Para meses (sem o dia específico), usamos 'in'. Ex: in May, in 1990.",
-    hint: "Usado para períodos longos como meses e anos."
-  },
+  { id: 'm1', level: 'medium', text: "Qual é o passado de 'Go'?", options: ["Goed", "Gone", "Went", "Going"], correctIndex: 2, explanation: "'Went' é o passado irregular de Go.", hint: "Irregular, começa com W." },
+  { id: 'm2', level: 'medium', text: "O que significa 'Parents'?", options: ["Parentes", "Pais", "Parceiros", "Primos"], correctIndex: 1, explanation: "'Parents' são Pais (pai e mãe).", hint: "Falso cognato para 'parentes'." },
+  { id: 'm3', level: 'medium', text: "'The book is ___ the table.'", options: ["in", "on", "at", "to"], correctIndex: 1, explanation: "'On' indica sobre a superfície.", hint: "Está em cima." },
+  { id: 'm4', level: 'medium', text: "Traduza 'Breakfast'", options: ["Pausa", "Café da manhã", "Freio", "Jantar"], correctIndex: 1, explanation: "Primeira refeição do dia.", hint: "Refeição matinal." },
+  { id: 'm5', level: 'medium', text: "Qual frase é Present Continuous?", options: ["I play", "I am playing", "I played", "I will play"], correctIndex: 1, explanation: "Requer verbo to be + ing.", hint: "Ação acontecendo agora." },
+  { id: 'm6', level: 'medium', text: "O que significa 'Library'?", options: ["Livraria", "Biblioteca", "Liberdade", "Laboratório"], correctIndex: 1, explanation: "'Library' é onde emprestamos livros.", hint: "Falso cognato. Livraria é Bookstore." },
+  { id: 'm7', level: 'medium', text: "Complete: 'She ___ speak English.'", options: ["can", "cans", "to can", "canning"], correctIndex: 0, explanation: "Modais não levam 'S'.", hint: "Verbo poder/conseguir." },
+  { id: 'm8', level: 'medium', text: "O que significa 'Push'?", options: ["Puxar", "Empurrar", "Pular", "Pegar"], correctIndex: 1, explanation: "'Push' é Empurrar.", hint: "Falso cognato. Oposto de Pull." },
+  { id: 'm9', level: 'medium', text: "Passado de 'Buy'?", options: ["Buyed", "Bought", "Brought", "Buying"], correctIndex: 1, explanation: "'Bought' é o passado de comprar.", hint: "Irregular, rima com Thought." },
+  { id: 'm10', level: 'medium', text: "O que significa 'Lunch'?", options: ["Lanche", "Almoço", "Jantar", "Ceia"], correctIndex: 1, explanation: "'Lunch' é Almoço.", hint: "Falso cognato. Lanche é Snack." },
+  { id: 'm11', level: 'medium', text: "Comparativo de 'Good'?", options: ["Gooder", "More good", "Better", "Best"], correctIndex: 2, explanation: "Good -> Better -> Best.", hint: "Melhor que..." },
+  { id: 'm12', level: 'medium', text: "O que significa 'Fabric'?", options: ["Fábrica", "Tecido", "Fabricar", "Tijolo"], correctIndex: 1, explanation: "'Fabric' é Tecido. Fábrica é Factory.", hint: "Material de roupa." },
+  { id: 'm13', level: 'medium', text: "Complete: 'I will ___ travel.'", options: ["probably", "yesterday", "last week", "ago"], correctIndex: 0, explanation: "'Probably' combina com futuro.", hint: "Indica probabilidade futura." },
+  { id: 'm14', level: 'medium', text: "O que é um 'Mayor'?", options: ["Maior", "Prefeito", "Melhor", "Major"], correctIndex: 1, explanation: "'Mayor' é Prefeito.", hint: "Chefe da cidade." },
+  { id: 'm15', level: 'medium', text: "Traduza: 'I have a cold.'", options: ["Estou com frio", "Tenho um resfriado", "Tenho gelo", "Sou frio"], correctIndex: 1, explanation: "'A cold' é um resfriado.", hint: "Doença comum." },
+  { id: 'm16', level: 'medium', text: "'I was born ___ May.'", options: ["on", "at", "in", "to"], correctIndex: 2, explanation: "Meses usam 'in'.", hint: "Preposição para meses e anos." },
+  { id: 'm17', level: 'medium', text: "Passado de 'Sleep'?", options: ["Sleeped", "Slept", "Slap", "Slope"], correctIndex: 1, explanation: "'Slept' é o passado de dormir.", hint: "Verbo irregular." },
+  { id: 'm18', level: 'medium', text: "O que significa 'Exit'?", options: ["Sucesso", "Existir", "Saída", "Exitar"], correctIndex: 2, explanation: "'Exit' é Saída.", hint: "Placa comum em portas." },
+  { id: 'm19', level: 'medium', text: "Plural de 'Child'?", options: ["Childs", "Children", "Childrens", "Childes"], correctIndex: 1, explanation: "'Children' é plural irregular.", hint: "Mais de uma criança." },
+  { id: 'm20', level: 'medium', text: "O que significa 'Pretend'?", options: ["Pretender", "Fingir", "Prender", "Entender"], correctIndex: 1, explanation: "'Pretend' é Fingir.", hint: "Falso cognato. O que atores fazem." },
+  { id: 'm21', level: 'medium', text: "Qual a tradução de 'Shoot'?", options: ["Chutar", "Atirar/Filmar", "Gritar", "Pular"], correctIndex: 1, explanation: "'Shoot' pode ser atirar ou filmar. Chutar é Kick.", hint: "Ação com arma ou câmera." },
+  { id: 'm22', level: 'medium', text: "Complete: 'He ___ work yesterday.'", options: ["doesn't", "don't", "didn't", "won't"], correctIndex: 2, explanation: "'Didn't' é o auxiliar de negação no passado.", hint: "Passado negativo." },
+  { id: 'm23', level: 'medium', text: "O que significa 'Legend'?", options: ["Legenda", "Lenda", "Legião", "Leve"], correctIndex: 1, explanation: "'Legend' é Lenda. Legenda é Subtitle.", hint: "História antiga ou mito." },
+  { id: 'm24', level: 'medium', text: "Traduza 'Vegetables'", options: ["Vegetais/Legumes", "Vegetação", "Vegano", "Velocidade"], correctIndex: 0, explanation: "São legumes e verduras.", hint: "Comida saudável." },
+  { id: 'm25', level: 'medium', text: "O que significa 'Pull'?", options: ["Pular", "Puxar", "Empurrar", "Colocar"], correctIndex: 1, explanation: "'Pull' é Puxar.", hint: "Oposto de Push." },
+  { id: 'm26', level: 'medium', text: "Qual o plural de 'Woman'?", options: ["Womans", "Women", "Womens", "Girl"], correctIndex: 1, explanation: "Plural irregular, muda 'a' para 'e'.", hint: "Pronuncia-se 'uí-men'." },
+  { id: 'm27', level: 'medium', text: "O que significa 'Costume'?", options: ["Costume", "Hábito", "Fantasia", "Costura"], correctIndex: 2, explanation: "'Costume' é Fantasia.", hint: "Roupa de Halloween." },
+  { id: 'm28', level: 'medium', text: "Complete: 'How ___ money?'", options: ["many", "much", "long", "often"], correctIndex: 1, explanation: "Dinheiro é incontável, usa-se 'much'.", hint: "Para coisas incontáveis." },
+  { id: 'm29', level: 'medium', text: "O que significa 'Tax'?", options: ["Táxi", "Imposto", "Taxa", "Texto"], correctIndex: 1, explanation: "'Tax' é Imposto.", hint: "Dinheiro pago ao governo." },
+  { id: 'm30', level: 'medium', text: "Traduza 'Actually'", options: ["Atualmente", "Na verdade", "Ação", "Atuante"], correctIndex: 1, explanation: "'Actually' é 'Na verdade'. Atualmente é Currently.", hint: "Usado para corrigir algo." },
+  { id: 'm31', level: 'medium', text: "Passado de 'Drink'?", options: ["Drinked", "Drank", "Drunk", "Dronk"], correctIndex: 1, explanation: "'Drank' é o passado simples de beber.", hint: "Muda o I pelo A." },
+  { id: 'm32', level: 'medium', text: "O que significa 'Attend'?", options: ["Atender", "Assistir/Participar", "Esperar", "Entender"], correctIndex: 1, explanation: "'Attend' é comparecer/participar.", hint: "Falso cognato. Atender é Answer." },
+  { id: 'm33', level: 'medium', text: "Complete: 'We are ___ to the beach.'", options: ["go", "gone", "going", "went"], correctIndex: 2, explanation: "Present Continuous: are going.", hint: "Futuro planejado ou ação agora." },
+  { id: 'm34', level: 'medium', text: "O que é 'Knife'?", options: ["Garfo", "Colher", "Faca", "Prato"], correctIndex: 2, explanation: "'Knife' é Faca.", hint: "Cortar comida." },
+  { id: 'm35', level: 'medium', text: "Qual a tradução de 'Notice'?", options: ["Notícia", "Notar/Aviso", "Noite", "Novo"], correctIndex: 1, explanation: "'Notice' é notar ou aviso. Notícia é News.", hint: "Perceber algo." },
 
   // --- HARD (Nível 7-8) ---
-  {
-    id: 'h1', level: 'hard',
-    text: "Qual frase está no 'Present Perfect'?",
-    options: ["I saw him.", "I have seen him.", "I bad seen him.", "I see him."],
-    correctIndex: 1,
-    explanation: "Present Perfect é formado por Have/Has + Particípio (Have seen).",
-    hint: "Procure pelo auxiliar 'Have' seguido de um verbo no particípio."
-  },
-  {
-    id: 'h2', level: 'hard',
-    text: "O que significa 'Pretend'?",
-    options: ["Pretender", "Fingir", "Prender", "Entender"],
-    correctIndex: 1,
-    explanation: "'Pretend' é Fingir. Pretender é 'Intend'.",
-    hint: "Falso cognato. É o que atores fazem."
-  },
-  {
-    id: 'h3', level: 'hard',
-    text: "Complete a condicional: 'If I ___ you, I would go.'",
-    options: ["was", "am", "were", "be"],
-    correctIndex: 2,
-    explanation: "Na segunda condicional (situação hipotética), usamos 'Were' para todas as pessoas, inclusive I.",
-    hint: "Forma subjuntiva do verbo to be usada em hipóteses."
-  },
-  {
-    id: 'h4', level: 'hard',
-    text: "O que significa o Phrasal Verb 'Give up'?",
-    options: ["Dar cima", "Desistir", "Levantar", "Começar"],
-    correctIndex: 1,
-    explanation: "'Give up' significa desistir de algo.",
-    hint: "Quando você para de tentar fazer algo."
-  },
-  {
-    id: 'h5', level: 'hard',
-    text: "Qual a tradução de 'Actually'?",
-    options: ["Atualmente", "Na verdade", "Ação", "Agilidade"],
-    correctIndex: 1,
-    explanation: "'Actually' significa 'Na verdade' ou 'De fato'. Atualmente é 'Currently'.",
-    hint: "Usado para corrigir uma informação ou dar ênfase a um fato."
-  },
-  {
-    id: 'h6', level: 'hard',
-    text: "Voz Passiva: 'The cake ___ by my mom.'",
-    options: ["was made", "made", "has made", "is make"],
-    correctIndex: 0,
-    explanation: "A voz passiva no passado usa Was/Were + Particípio (Was made).",
-    hint: "O bolo sofreu a ação de ser feito."
-  },
-  {
-    id: 'h7', level: 'hard',
-    text: "O que significa 'Eventually'?",
-    options: ["Eventualmente", "Finalmente", "Talvez", "De vez em quando"],
-    correctIndex: 1,
-    explanation: "'Eventually' significa 'No final das contas' ou 'Finalmente'. Eventualmente é 'Occasionally'.",
-    hint: "Acontece no final de um processo longo."
-  },
-  {
-    id: 'h8', level: 'hard',
-    text: "Qual a diferença entre 'Say' e 'Tell'?",
-    options: ["Nenhuma", "Tell precisa de um receptor (Tell someone)", "Say precisa de um receptor", "Tell é apenas para mentiras"],
-    correctIndex: 1,
-    explanation: "Geralmente 'Tell' é usado quando dizemos PARA ALGUÉM (Tell me, Tell him). Say é mais geral.",
-    hint: "Tell me a story (Conte-me)."
-  },
-  {
-    id: 'h9', level: 'hard',
-    text: "O que significa 'Run out of'?",
-    options: ["Correr fora", "Expulsar", "Ficar sem", "Fugir de"],
-    correctIndex: 2,
-    explanation: "'Run out of' significa esgotar o estoque de algo (Ex: Run out of gas).",
-    hint: "Quando o leite acaba na geladeira."
-  },
-  {
-    id: 'h10', level: 'hard',
-    text: "Traduza: 'I am used to waking up early.'",
-    options: ["Eu costumava acordar cedo", "Eu estou acostumado a acordar cedo", "Eu usei para acordar", "Eu acordo cedo"],
-    correctIndex: 1,
-    explanation: "'Be used to' + ING significa Estar Acostumado. 'Used to' + Verbo Base significa Costumava (passado).",
-    hint: "É um hábito atual, não algo que parou de acontecer."
-  },
-  {
-    id: 'h11', level: 'hard',
-    text: "O que significa 'Exquisite'?",
-    options: ["Esquisito", "Feio", "Refinado/Belo", "Exausto"],
-    correctIndex: 2,
-    explanation: "'Exquisite' significa algo muito belo, refinado ou delicado. Esquisito é 'Weird' ou 'Strange'.",
-    hint: "Usado para descrever joias ou comida chique."
-  },
-  {
-    id: 'h12', level: 'hard',
-    text: "Complete: 'You ___ smoke here. It is forbidden.'",
-    options: ["don't have to", "mustn't", "shouldn't", "couldn't"],
-    correctIndex: 1,
-    explanation: "'Mustn't' indica proibição. 'Don't have to' indica falta de necessidade.",
-    hint: "É uma regra estrita, proibição total."
-  },
-  {
-    id: 'h13', level: 'hard',
-    text: "O que é 'Application' num contexto de emprego?",
-    options: ["Aplicativo", "Aplicação financeira", "Candidatura/Inscrição", "Esforço"],
-    correctIndex: 2,
-    explanation: "'Job Application' é a candidatura a uma vaga. Aplicativo de celular é 'App'.",
-    hint: "O formulário que você preenche para tentar um emprego."
-  },
-  {
-    id: 'h14', level: 'hard',
-    text: "Qual é o oposto de 'Lend' (Emprestar)?",
-    options: ["Give", "Borrow", "Take", "Send"],
-    correctIndex: 1,
-    explanation: "Lend é quando você dá emprestado. Borrow é quando você pega emprestado.",
-    hint: "Pegar algo com a intenção de devolver."
-  },
-  {
-    id: 'h15', level: 'hard',
-    text: "O que significa 'Look forward to'?",
-    options: ["Olhar para frente", "Estar ansioso/animado por", "Procurar", "Esquecer"],
-    correctIndex: 1,
-    explanation: "'Look forward to' significa esperar ansiosamente por algo no futuro.",
-    hint: "Comum no final de emails: 'I look forward to hearing from you'."
-  },
+  { id: 'h1', level: 'hard', text: "Qual frase é Present Perfect?", options: ["I saw", "I have seen", "I had seen", "I see"], correctIndex: 1, explanation: "Have/Has + Particípio.", hint: "Auxiliar Have presente." },
+  { id: 'h2', level: 'hard', text: "O que significa 'Pretend'?", options: ["Pretender", "Fingir", "Prender", "Entender"], correctIndex: 1, explanation: "'Pretend' é Fingir.", hint: "Falso cognato." },
+  { id: 'h3', level: 'hard', text: "'If I ___ you, I would go.'", options: ["was", "am", "were", "be"], correctIndex: 2, explanation: "Subjuntivo 'Were' para hipóteses.", hint: "Condicional tipo 2." },
+  { id: 'h4', level: 'hard', text: "Phrasal Verb 'Give up'?", options: ["Dar cima", "Desistir", "Levantar", "Começar"], correctIndex: 1, explanation: "Desistir de algo.", hint: "Parar de tentar." },
+  { id: 'h5', level: 'hard', text: "Traduza 'Actually'", options: ["Atualmente", "Na verdade", "Ação", "Agilidade"], correctIndex: 1, explanation: "'Na verdade'.", hint: "Correção de fato." },
+  { id: 'h6', level: 'hard', text: "Voz Passiva: 'The cake ___ made.'", options: ["was", "did", "has", "is being"], correctIndex: 0, explanation: "'Was made' (Foi feito).", hint: "Passado passivo." },
+  { id: 'h7', level: 'hard', text: "Significado de 'Eventually'?", options: ["Eventualmente", "Finalmente", "Talvez", "Ocasionalmente"], correctIndex: 1, explanation: "'No final das contas'.", hint: "Falso cognato." },
+  { id: 'h8', level: 'hard', text: "Diferença 'Say' vs 'Tell'?", options: ["Nenhuma", "Tell precisa de receptor", "Say precisa de receptor", "Tell é mentira"], correctIndex: 1, explanation: "Tell someone something.", hint: "Tell ME." },
+  { id: 'h9', level: 'hard', text: "'Run out of' significa?", options: ["Correr fora", "Expulsar", "Ficar sem/Esgotar", "Fugir"], correctIndex: 2, explanation: "Acabar o estoque.", hint: "Quando acaba a gasolina." },
+  { id: 'h10', level: 'hard', text: "'I am used to ___'", options: ["wake up", "waking up", "woke up", "wakes up"], correctIndex: 1, explanation: "'Be used to' exige gerúndio (ING).", hint: "Hábito atual." },
+  { id: 'h11', level: 'hard', text: "O que significa 'Exquisite'?", options: ["Esquisito", "Feio", "Refinado/Belo", "Exausto"], correctIndex: 2, explanation: "Algo belo e delicado.", hint: "Não é esquisito." },
+  { id: 'h12', level: 'hard', text: "'You ___ smoke here. Forbidden.'", options: ["don't have to", "mustn't", "shouldn't", "couldn't"], correctIndex: 1, explanation: "'Mustn't' é proibição.", hint: "Regra estrita." },
+  { id: 'h13', level: 'hard', text: "'Application' (emprego)?", options: ["Aplicativo", "Investimento", "Candidatura", "Esforço"], correctIndex: 2, explanation: "Inscrição para vaga.", hint: "Formulário de emprego." },
+  { id: 'h14', level: 'hard', text: "Oposto de 'Lend'?", options: ["Give", "Borrow", "Take", "Send"], correctIndex: 1, explanation: "Lend (dar emprestado) x Borrow (pegar emprestado).", hint: "Pegar emprestado." },
+  { id: 'h15', level: 'hard', text: "'Look forward to'?", options: ["Olhar frente", "Estar ansioso por", "Procurar", "Esquecer"], correctIndex: 1, explanation: "Esperar com ansiedade.", hint: "Comum em emails." },
+  { id: 'h16', level: 'hard', text: "Tag Question: 'She is nice, ___?'", options: ["isn't she", "is she", "does she", "didn't she"], correctIndex: 0, explanation: "Positivo vira negativo.", hint: "Inverte o verbo to be." },
+  { id: 'h17', level: 'hard', text: "O que significa 'Hardly'?", options: ["Dificilmente/Quase não", "Duro", "Forte", "Trabalhoso"], correctIndex: 0, explanation: "Sentido negativo.", hint: "Hardly ever = quase nunca." },
+  { id: 'h18', level: 'hard', text: "'Unless' significa?", options: ["A menos que", "Se", "Quando", "Apesar"], correctIndex: 0, explanation: "Condicional negativa (If not).", hint: "Exceção." },
+  { id: 'h19', level: 'hard', text: "Phrasal Verb 'Call off'?", options: ["Chamar", "Cancelar", "Gritar", "Telefonar"], correctIndex: 1, explanation: "Cancelar um evento.", hint: "O jogo foi 'called off' por chuva." },
+  { id: 'h20', level: 'hard', text: "'I wish I ___ known.'", options: ["have", "had", "has", "would"], correctIndex: 1, explanation: "Past Perfect para arrependimento.", hint: "Gostaria que tivesse..." },
+  { id: 'h21', level: 'hard', text: "O que é 'Comprehensive'?", options: ["Compreensivo", "Abrangente/Completo", "Comprido", "Entendedor"], correctIndex: 1, explanation: "Que cobre tudo.", hint: "Falso cognato. Compreensivo é Understanding." },
+  { id: 'h22', level: 'hard', text: "Traduza 'Idiom'", options: ["Idioma", "Idiota", "Expressão Idiomática", "Ideia"], correctIndex: 2, explanation: "Expressão fixa.", hint: "Idioma é Language." },
+  { id: 'h23', level: 'hard', text: "'By the time you arrive, I ___.'", options: ["will leave", "left", "will have left", "leave"], correctIndex: 2, explanation: "Future Perfect.", hint: "Ação terminada no futuro." },
+  { id: 'h24', level: 'hard', text: "O que significa 'Resume'?", options: ["Resumir", "Currículo", "Resumo", "Recomeçar"], correctIndex: 3, explanation: "Como verbo é recomeçar. Como substantivo (Résumé) é currículo.", hint: "Continuar após pausa." },
+  { id: 'h25', level: 'hard', text: "O que significa 'Realize'?", options: ["Realizar", "Perceber", "Realeza", "Real"], correctIndex: 1, explanation: "Dar-se conta de algo.", hint: "Falso cognato. Realizar é Accomplish." },
+  { id: 'h26', level: 'hard', text: "Qual a tradução de 'Policy'?", options: ["Polícia", "Política (Diretriz)", "Polidez", "Polir"], correctIndex: 1, explanation: "Regras ou diretrizes.", hint: "Política de privacidade." },
+  { id: 'h27', level: 'hard', text: "'Look after' significa?", options: ["Olhar depois", "Cuidar de", "Procurar", "Parecer"], correctIndex: 1, explanation: "Tomar conta.", hint: "Cuidar de crianças ou pets." },
+  { id: 'h28', level: 'hard', text: "'Despite' significa?", options: ["Desprezo", "Apesar de", "Despesa", "Depois"], correctIndex: 1, explanation: "Concessão.", hint: "Sinônimo de In spite of." },
+  { id: 'h29', level: 'hard', text: "'Put up with' significa?", options: ["Colocar cima", "Tolerar", "Construir", "Hospedar"], correctIndex: 1, explanation: "Aceitar algo chato.", hint: "Não aguento mais (can't put up with)." },
+  { id: 'h30', level: 'hard', text: "O que significa 'Data'?", options: ["Data", "Dados", "Dívida", "Dedo"], correctIndex: 1, explanation: "Informações.", hint: "Falso cognato. Data do calendário é Date." },
 
   // --- EXPERT (Nível 9-10) ---
-  {
-    id: 'x1', level: 'expert',
-    text: "O que significa a expressão 'Piece of cake'?",
-    options: ["Pedaço de bolo", "Algo muito fácil", "Uma mentira", "Algo delicioso"],
-    correctIndex: 1,
-    explanation: "'Piece of cake' é uma idiom que significa que algo é muito fácil (Moleza).",
-    hint: "Equivalente a 'mamão com açúcar' em português."
-  },
-  {
-    id: 'x2', level: 'expert',
-    text: "O que significa 'Break a leg'?",
-    options: ["Quebre uma perna", "Boa sorte", "Vá ao médico", "Desista"],
-    correctIndex: 1,
-    explanation: "No teatro, 'Break a leg' é usado para desejar Boa Sorte.",
-    hint: "Desejo irônico de sorte, muito usado no teatro."
-  },
-  {
-    id: 'x3', level: 'expert',
-    text: "Qual a forma correta da inversão?",
-    options: ["Never I have seen...", "Never have I seen...", "I have never seen...", "Seen never I have..."],
-    correctIndex: 1,
-    explanation: "Quando começamos com 'Never' para ênfase, invertemos o auxiliar e o sujeito: 'Never have I...'",
-    hint: "Estrutura formal onde o auxiliar vem antes do sujeito por causa do 'Never'."
-  },
-  {
-    id: 'x4', level: 'expert',
-    text: "Significado de 'Call it a day':",
-    options: ["Ligar de dia", "Encerrar o trabalho por hoje", "Chamar pelo nome", "Marcar uma data"],
-    correctIndex: 1,
-    explanation: "'Call it a day' significa parar de trabalhar no que se está fazendo pelo resto do dia.",
-    hint: "Expressão usada quando você quer ir para casa descansar."
-  },
-  {
-    id: 'x5', level: 'expert',
-    text: "Qual a diferença entre 'Make' e 'Do'?",
-    options: ["Não há diferença", "Make é criar/fabricar, Do é executar ação", "Make é executar, Do é criar", "Make é formal, Do é informal"],
-    correctIndex: 1,
-    explanation: "Geralmente, 'Make' é para criar algo novo (bolo, erro), 'Do' é para tarefas/atividades (trabalho, exercícios).",
-    hint: "Um foca no produto final, o outro na ação em si."
-  },
-  {
-    id: 'x6', level: 'expert',
-    text: "O que significa 'Once in a blue moon'?",
-    options: ["Toda noite", "Raramente", "Sempre", "Nunca"],
-    correctIndex: 1,
-    explanation: "Expressão para algo que acontece muito raramente.",
-    hint: "Pense em quão rara é uma lua azul."
-  },
-  {
-    id: 'x7', level: 'expert',
-    text: "O que significa 'Bite the bullet'?",
-    options: ["Morder a bala", "Encarar uma situação difícil", "Comer rápido", "Desistir"],
-    correctIndex: 1,
-    explanation: "Significa aceitar algo difícil ou desagradável que é inevitável.",
-    hint: "Fazer algo doloroso com coragem."
-  },
-  {
-    id: 'x8', level: 'expert',
-    text: "O que significa 'Hit the sack'?",
-    options: ["Bater no saco", "Ir dormir", "Ser demitido", "Começar a trabalhar"],
-    correctIndex: 1,
-    explanation: "'Hit the sack' (ou hay) é uma gíria para ir para a cama dormir.",
-    hint: "Quando você está muito cansado à noite."
-  },
-  {
-    id: 'x9', level: 'expert',
-    text: "O que significa 'Cost an arm and a leg'?",
-    options: ["Custa um braço e uma perna", "É muito barato", "É muito caro", "É de graça"],
-    correctIndex: 2,
-    explanation: "Expressão para dizer que algo é excessivamente caro.",
-    hint: "Preço exorbitante, custa partes do corpo."
-  },
-  {
-    id: 'x10', level: 'expert',
-    text: "Traduza: 'He is sitting on the fence.'",
-    options: ["Ele está sentado na cerca", "Ele está indeciso", "Ele está protegendo a casa", "Ele caiu"],
-    correctIndex: 1,
-    explanation: "'Sit on the fence' significa não tomar partido ou estar indeciso.",
-    hint: "Não escolheu nem o lado esquerdo nem o direito."
-  },
-  {
-    id: 'x11', level: 'expert',
-    text: "O que significa 'Under the weather'?",
-    options: ["Debaixo do tempo", "Sentindo-se mal/doente", "Na chuva", "Com pressa"],
-    correctIndex: 1,
-    explanation: "Estar 'Under the weather' significa não estar se sentindo bem de saúde.",
-    hint: "Quando você está gripado ou enjoado."
-  },
-  {
-    id: 'x12', level: 'expert',
-    text: "O que significa 'Barking up the wrong tree'?",
-    options: ["Latindo na árvore", "Acusando a pessoa errada", "Caçando animais", "Gritando alto"],
-    correctIndex: 1,
-    explanation: "Significa seguir uma pista falsa ou acusar a pessoa errada.",
-    hint: "O cachorro está latindo para a árvore onde o gato NÃO está."
-  },
-  {
-    id: 'x13', level: 'expert',
-    text: "Complete: 'Had I known, I ___ gone.'",
-    options: ["would have", "will have", "would", "had"],
-    correctIndex: 0,
-    explanation: "Terceira condicional invertida: 'Had I known' = 'If I had known'. A consequência usa 'would have'.",
-    hint: "Estrutura avançada de condicional passada."
-  },
-  {
-    id: 'x14', level: 'expert',
-    text: "O que significa 'Spill the beans'?",
-    options: ["Derrubar feijão", "Cozinhar", "Revelar um segredo", "Mentir"],
-    correctIndex: 2,
-    explanation: "'Spill the beans' significa contar um segredo (dar com a língua nos dentes).",
-    hint: "Deixar a verdade escapar."
-  },
-  {
-    id: 'x15', level: 'expert',
-    text: "O que significa 'Cold turkey'?",
-    options: ["Peru frio", "Parar um vício abruptamente", "Comida de natal", "Uma pessoa fria"],
-    correctIndex: 1,
-    explanation: "'Go cold turkey' significa parar de usar algo (vício) de uma vez só, sem diminuir aos poucos.",
-    hint: "Parar de fumar de um dia para o outro."
-  }
+  { id: 'x1', level: 'expert', text: "'Piece of cake'?", options: ["Bolo", "Muito fácil", "Mentira", "Delicioso"], correctIndex: 1, explanation: "Algo muito fácil.", hint: "Moleza." },
+  { id: 'x2', level: 'expert', text: "'Break a leg'?", options: ["Quebre a perna", "Boa sorte", "Vá ao médico", "Desista"], correctIndex: 1, explanation: "Boa sorte (teatro).", hint: "Desejo irônico." },
+  { id: 'x3', level: 'expert', text: "Inversão correta?", options: ["Never I have", "Never have I", "I have never", "Seen never I"], correctIndex: 1, explanation: "Ênfase negativa inverte auxiliar.", hint: "Formal." },
+  { id: 'x4', level: 'expert', text: "'Call it a day'?", options: ["Ligar dia", "Parar de trabalhar", "Chamar nome", "Marcar data"], correctIndex: 1, explanation: "Encerrar por hoje.", hint: "Ir para casa." },
+  { id: 'x5', level: 'expert', text: "Diferença Make vs Do?", options: ["Nenhuma", "Make=Criar, Do=Ação", "Make=Ação, Do=Criar", "Make=Formal"], correctIndex: 1, explanation: "Make foca no produto, Do no processo.", hint: "Make a cake, Do homework." },
+  { id: 'x6', level: 'expert', text: "'Once in a blue moon'?", options: ["Toda noite", "Raramente", "Sempre", "Nunca"], correctIndex: 1, explanation: "Muito raro.", hint: "Evento lunar raro." },
+  { id: 'x7', level: 'expert', text: "'Bite the bullet'?", options: ["Morder bala", "Encarar dificuldade", "Comer rápido", "Desistir"], correctIndex: 1, explanation: "Encarar o inevitável.", hint: "Coragem na dor." },
+  { id: 'x8', level: 'expert', text: "'Hit the sack'?", options: ["Bater saco", "Ir dormir", "Demitido", "Trabalhar"], correctIndex: 1, explanation: "Ir para a cama.", hint: "Gíria para dormir." },
+  { id: 'x9', level: 'expert', text: "'Cost an arm and a leg'?", options: ["Partes do corpo", "Barato", "Muito caro", "De graça"], correctIndex: 2, explanation: "Preço exorbitante.", hint: "Custa membros." },
+  { id: 'x10', level: 'expert', text: "'Sitting on the fence'?", options: ["Sentado cerca", "Indeciso", "Protegendo", "Caindo"], correctIndex: 1, explanation: "Não tomar partido.", hint: "Em cima do muro." },
+  { id: 'x11', level: 'expert', text: "'Under the weather'?", options: ["Debaixo tempo", "Doente/Mal", "Na chuva", "Com pressa"], correctIndex: 1, explanation: "Sentindo-se mal.", hint: "Levemente doente." },
+  { id: 'x12', level: 'expert', text: "'Barking up the wrong tree'?", options: ["Latindo árvore", "Acusando errado", "Caçando", "Gritando"], correctIndex: 1, explanation: "Seguindo pista falsa.", hint: "Cachorro confuso." },
+  { id: 'x13', level: 'expert', text: "'Had I known, I ___ gone.'", options: ["would have", "will have", "would", "had"], correctIndex: 0, explanation: "Condicional 3 invertida.", hint: "Consequência passada." },
+  { id: 'x14', level: 'expert', text: "'Spill the beans'?", options: ["Derrubar feijão", "Cozinhar", "Revelar segredo", "Mentir"], correctIndex: 2, explanation: "Contar a verdade.", hint: "Dar com a língua nos dentes." },
+  { id: 'x15', level: 'expert', text: "'Cold turkey'?", options: ["Peru frio", "Parar vício abruptamente", "Comida", "Frio"], correctIndex: 1, explanation: "Parar de uma vez.", hint: "Abstinência súbita." },
+  { id: 'x16', level: 'expert', text: "'Burn the midnight oil'?", options: ["Queimar óleo", "Trabalhar até tarde", "Cozinhar", "Dormir cedo"], correctIndex: 1, explanation: "Estudar ou trabalhar noite adentro.", hint: "Lâmpada a óleo à noite." },
+  { id: 'x17', level: 'expert', text: "'Cut corners'?", options: ["Cortar cantos", "Fazer mal feito/Economizar", "Dirigir", "Arquitetura"], correctIndex: 1, explanation: "Fazer rápido e barato, sacrificando qualidade.", hint: "Atalhos perigosos." },
+  { id: 'x18', level: 'expert', text: "'Miss the boat'?", options: ["Perder o barco", "Perder a oportunidade", "Navegar", "Chegar tarde"], correctIndex: 1, explanation: "Perder a chance.", hint: "O navio já partiu." },
+  { id: 'x19', level: 'expert', text: "'The best of both worlds'?", options: ["Melhor dos mundos", "Viagem espacial", "Rico", "Dois planetas"], correctIndex: 0, explanation: "Vantagens de duas situações diferentes.", hint: "Ter tudo." },
+  { id: 'x20', level: 'expert', text: "'Feeling blue'?", options: ["Sentindo azul", "Triste/Deprimido", "Com frio", "Calmo"], correctIndex: 1, explanation: "Estar triste.", hint: "Cor da tristeza." },
+  { id: 'x21', level: 'expert', text: "'See eye to eye'?", options: ["Olho no olho", "Concordar plenamente", "Discutir", "Encarar"], correctIndex: 1, explanation: "Ter a mesma opinião.", hint: "Visão igual." },
+  { id: 'x22', level: 'expert', text: "'Kill two birds with one stone'?", options: ["Matar pássaros", "Dois coelhos com uma cajadada", "Caçar", "Crueldade"], correctIndex: 1, explanation: "Resolver dois problemas de uma vez.", hint: "Eficiência." },
+  { id: 'x23', level: 'expert', text: "'Let the cat out of the bag'?", options: ["Soltar o gato", "Revelar segredo", "Comprar pet", "Perder algo"], correctIndex: 1, explanation: "Revelar algo acidentalmente.", hint: "Similar a Spill the beans." },
+  { id: 'x24', level: 'expert', text: "'To sit tight'?", options: ["Sentar apertado", "Esperar pacientemente", "Ficar nervoso", "Espremer"], correctIndex: 1, explanation: "Aguardar sem agir.", hint: "Não se mova." },
+  { id: 'x25', level: 'expert', text: "O que significa 'Serendipity'?", options: ["Serenidade", "Sorte/Acaso feliz", "Seriedade", "Servidão"], correctIndex: 1, explanation: "Encontrar algo bom por acaso.", hint: "Golpe de sorte." },
+  { id: 'x26', level: 'expert', text: "O que é 'Ephemeral'?", options: ["Efeminado", "Efêmero/Passageiro", "Eterno", "Doença"], correctIndex: 1, explanation: "Que dura pouco.", hint: "Passageiro." },
+  { id: 'x27', level: 'expert', text: "Diferença Further vs Farther?", options: ["Iguais", "Farther=Físico, Further=Metafórico", "Farther=Metafórico", "Nenhuma"], correctIndex: 1, explanation: "Farther (distância), Further (adicional).", hint: "Far = longe." },
+  { id: 'x28', level: 'expert', text: "Uso de 'Whom'?", options: ["Sujeito", "Objeto", "Verbo", "Adjetivo"], correctIndex: 1, explanation: "Whom é usado como objeto (To whom).", hint: "Substitui 'Him/Her'." },
+  { id: 'x29', level: 'expert', text: "'Actions speak louder than ___'?", options: ["voice", "words", "thoughts", "screams"], correctIndex: 1, explanation: "Ações valem mais que palavras.", hint: "Provérbio famoso." },
+  { id: 'x30', level: 'expert', text: "'Ubiquitous' significa?", options: ["Raro", "Onipresente", "Único", "Líquido"], correctIndex: 1, explanation: "Que está em todo lugar.", hint: "Comum." }
 ];
 
 // --- Helper Functions ---
